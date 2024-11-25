@@ -15,5 +15,5 @@
 ![background-inf](./in/f/Back-1b.png)
 
 <a href="https://github.com/tynrare/spacedays/blob/main/in">
-<img src="https://github.com/tynrare/spacedays/blob/main/in/nebulas/nebula01_512.png.png">
+<img src="https://github.com/tynrare/spacedays/blob/main/in/nebulas/nebula01_512.png">
 </a>
