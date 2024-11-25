@@ -4,6 +4,12 @@
 
 ![ship_a](./resources/spaceships/ship_A.png)
 
-![ship_b](./resources/spaceships/ship_b.png)
+![ship_b](./resources/spaceships/ship_B.png)
+
+![ship_c](./resources/spaceships/ship_C.png)
+
+![ship_d](./resources/spaceships/ship_D.png)
+
+![ship_e](./resources/spaceships/ship_E.png)
 
 ![background-inf](./in/f/Back-1b.png)
