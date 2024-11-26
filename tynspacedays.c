@@ -1,44 +1,39 @@
 /*******************************************************************************************
 *
 *   Welcome into tynspace days!
-*
+*   l241125. github.com/tynrare/spacedays
+*#  | 
+*   l241126 7:55am;
+*#  | 
 *   Welcome to raylib!
+*
+*
+*#  wit.games
 *
 ********************************************************************************************/
 
 #include "tynspacedays.h"
 #include "demo_heightmap.h"
 
-void tsd_state_init(TynspaceDaysState *tsd_state) {
-    while (tsd_state->bpool->idle) {
-        TynPoolCell *cell = tynpool_cell_alloc(tsd_state->bpool);
-        float *x = cell->point;
-        float *y = x + 1;
-        *x += GetRandomValue(viewport_w * 0.5 - 32, viewport_w * 0.5 + 32);
-        *y += GetRandomValue(viewport_h * 0.5 - 32, viewport_h * 0.5 + 32);
-    }
-}
+#define WATTS 4.2
 
-TynspaceDaysState *tsd_state_allocate() {
-    TynspaceDaysState *tsd_state = malloc(sizeof(TynspaceDaysState));
-    tsd_state->bpool = typool_allocate(1024, sizeof(float) * 4);
-    
-    tsd_state_init(tsd_state);
-    
-    return tsd_state;
-}
-
-
+#define TITLE "Tynspace days. wit"
 
 void tsd_state_step(TynspaceDaysState *tsd_state) {
-    float watts = 1;
+    float watts = WATTS;
     float frec = 1;
     Vector2 mp = getmp();
     Vector2 bp = { 0 };
     Color fblue = Fade(BLUE, 1);
     float st = sinf(GetTime() * frec);
     
-    DrawText(st > 0 ? "a!" : "b!", 190, 200, 20, RED);
+    draw_text_ru("компас. ", 18, 18, RED);
+    DrawTextRu("компас. ", 16, 16);
+    
+    DrawTextEx(rufont, RSCANNER, (Vector2){ 18, 56 }, rufont_size, 2, st > 0 ? RED : BLUE);
+    DrawTextEx(rufont, RSCANNER, (Vector2){ 16, 54 }, rufont_size, 2, st < 0 ? RED : BLUE);
+
+    DrawText(st > 0 ? "compas!" : "scaner!", 190, 200, 42, RED);
     for (TynPoolCell *p = tsd_state->bpool->active; p; p = p->next) {
         float *x = p->point;
         float *y = x + 1;
@@ -54,45 +49,130 @@ void tsd_state_step(TynspaceDaysState *tsd_state) {
     }
 }
 
+typedef struct TynsdApp {
+    int a;
+    int b;
+    int d;
+    int r;
+    TynspaceDaysState *tsds;
+} TynsdApp;
+
+TynsdApp *tsda = { 0 };
+
+void init() {
+    tsda = malloc(sizeof(TynsdApp));
+    tsda->a = 1;
+    tsda->b = 0;
+    tsda->d = 0;
+    tsda->r = 0;
+
+
+}
+
+void draw() {
+    tsd_state_step(tsda->tsds);
+    /*
+    BeginMode3D(demo_heightmap_state.camera);
+        DrawModel(demo_heightmap_state.model, demo_heightmap_state.position, 1.0f, R/
+    EndMode3D();
+    */
+}
+
+void step() {
+    tsda->b += 1;
+        // Update
+       
+        // ч происходит леш хх
+       
+        BeginDrawing();
+
+        ClearBackground(GREEN);
+        
+        draw();
+        
+        EndDrawing();
+        //----------------------------------------------------------------------------------
+}
+
+bool loop() {
+    tsda->a = 3;
+    
+    if (WindowShouldClose()) {
+        tsda->a -= 2;
+    }
+    
+    // Main game loop
+    step();
+    
+    // Detect window close button or ESC key
+    return tsda->a > 2;
+}
+
+
+void run() {
+    tsda->a = 2;
+    tsda->b = 0;
+    
+    InitWindow(viewport_w, viewport_h, TITLE);
+    SetWindowState(FLAG_WINDOW_RESIZABLE);
+    SetTargetFPS(60);
+    tsda->r = 1;
+    load_rutopter();
+    tsda->r = 2;
+    
+    tsda->b = 1;
+    
+    tsda->d = 0;
+    
+    TynspaceDaysState *tsd_state = tsd_state_init();
+    tsda->tsds = tsd_state;
+    
+    tsda->b = 2;
+    
+    tsd_state_run(tsd_state);
+    
+    tsda->b = 3;
+    
+    while(tsda->a > 1 && loop()) {};
+}
+
+void stop() {
+    tsda->a = 1;
+    tsda->d = 1;
+    tsd_state_stop(tsda->tsds);
+    tsda->d = 2;
+    tsd_state_dispose(tsda->tsds);
+    tsda->d = 3;
+    
+    CloseWindow();
+    
+     tsda->d = 4;
+}
+
+void dispose() {
+    tsda->a = 1;
+    tsda->b = 0;
+    tsda->d = 0;
+    free(tsda);
+}
+
+
 int main(void)
 {
     // Initialization
     //--------------------------------------------------------------------------------------
 
-    InitWindow(viewport_w, viewport_h, "tynspace days.");
-    SetWindowState(FLAG_WINDOW_RESIZABLE);
-    SetTargetFPS(60);
     
-    TynspaceDaysState *tsd_state = tsd_state_allocate();
+    init();
+    run();
+    
     //DemoHeightmapState demo_heightmap_state = demo_heightmap_state_init();
     
-    // Main game loop
-    while (!WindowShouldClose())    // Detect window close button or ESC key
-    {
-        // Update
-       
-       // ч происходит леш хх
-       
-        BeginDrawing();
-
-        ClearBackground(GREEN);
-            
-        tsd_state_step(tsd_state);
-        
-        /*
-        BeginMode3D(demo_heightmap_state.camera);
-
-            DrawModel(demo_heightmap_state.model, demo_heightmap_state.position, 1.0f, R/
-        EndMode3D();
-        */
-      
-        EndDrawing();
-        //----------------------------------------------------------------------------------
-    }
+    
 
     // De-Initialization
     //--------------------------------------------------------------------------------------
-    CloseWindow();        // Close window and OpenGL context
+            // Close window and OpenGL context
     //--------------------------------------------------------------------------------------
 
     return 0;

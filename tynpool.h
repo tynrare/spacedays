@@ -49,13 +49,12 @@ TynPool *typool_allocate(int cells, int cellsize) {
     return tp;
 };
 
-void typool_dispose(TynPool *tp) {
+void tynpool_dispose(TynPool *tp) {
     free(tp->mem_pool);
     free(tp->cells_pool);
     free(tp);
 };
 
-#include "raylib.h"
 TynPoolCell *tynpool_cell_alloc(TynPool *tp) {
     TynPoolCell *tpc = tp->idle;
     if (!tpc) {
