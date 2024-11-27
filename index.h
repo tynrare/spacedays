@@ -3,14 +3,15 @@
 
 #include "ru.h"
 #include "tynpool.h"
-#include "sprite.h"
 
 #ifndef INDEX_H
 #define INDEX_H
 
+#define VIEWPORT_W 512
+#define VIEWPORT_H 512
 
-const int viewport_w = 512;
-const int viewport_h = 512;
+int viewport_w = VIEWPORT_W;
+int viewport_h = VIEWPORT_H;
 
 const Vector2 vleft = { -1, 0 };
 const Vector2 vright = { 1, 0 };

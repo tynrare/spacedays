@@ -1,9 +1,10 @@
 #include "index.h"
-
+#include "resources.h"
 
 #ifndef TYNSPACEDAYS_H
 #define TYNSPACEDAYS_H
 #define bood bool
+
 typedef struct TunspaceToolbox {
     bood hold;
     bool compas;
@@ -14,7 +15,6 @@ typedef struct TynspaceDaysState {
     struct TynPool *bpool;
     TunspaceToolbox tyntbox;
 } TynspaceDaysState;
-
 
 void tsd_state_stop(TynspaceDaysState *tsd_state) {
     while (tsd_state->bpool->idle) {

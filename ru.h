@@ -54,7 +54,7 @@ void draw_text_ru(const char *t, float x, float y, Color c) {
 }
 
 int load_rutopter() {
-    static char *initial_text = RALLPRINTTEXT;
+    static char *initial_text = FONT_TEXT;
     
     // Get codepoints from text
   int codepointCount = 0;
@@ -69,6 +69,8 @@ int load_rutopter() {
      rufont = LoadFontEx("resources/monogram-extended.ttf", rufont_size, codepointsNoDups,
                     codepointsNoDupsCount);
     SetTextLineSpacing(24);
+    
+    return 0;
 }
 
 // Remove codepoint duplicates if requested

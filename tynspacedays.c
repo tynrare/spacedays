@@ -5,6 +5,8 @@
 *#  | 
 *   l241126 7:55am;
 *#  | 
+*   l241127 19:58am;
+*#  |  - sdf shaders; resources workflow.
 *   Welcome to raylib!
 *
 *
@@ -14,10 +16,16 @@
 
 #include "tynspacedays.h"
 #include "demo_heightmap.h"
+#include "assets.h"
 
 #define WATTS 4.2
 
+#define TYCOMPAS "tyc."
+#define TYSCANNER "tys!"
+
 #define TITLE "Tynspace days. wit"
+
+#define PRINT_VALUE(value) printf("Value of %s is %d", #value, value);
 
 void tsd_state_step(TynspaceDaysState *tsd_state) {
     float watts = WATTS;
@@ -33,7 +41,7 @@ void tsd_state_step(TynspaceDaysState *tsd_state) {
     DrawTextEx(rufont, RSCANNER, (Vector2){ 18, 56 }, rufont_size, 2, st > 0 ? RED : BLUE);
     DrawTextEx(rufont, RSCANNER, (Vector2){ 16, 54 }, rufont_size, 2, st < 0 ? RED : BLUE);
 
-    DrawText(st > 0 ? "compas!" : "scaner!", 190, 200, 42, RED);
+    DrawText(st > 0 ? TYCOMPAS : TYSCANNER, viewport_w * 0.5, viewport_h * 0.5, 60, BLACK);
     for (TynPoolCell *p = tsd_state->bpool->active; p; p = p->next) {
         float *x = p->point;
         float *y = x + 1;
@@ -55,6 +63,7 @@ typedef struct TynsdApp {
     int d;
     int r;
     TynspaceDaysState *tsds;
+    TynAssets assets;
 } TynsdApp;
 
 TynsdApp *tsda = { 0 };
@@ -71,6 +80,9 @@ void init() {
 
 void draw() {
     tsd_state_step(tsda->tsds);
+    BeginShaderMode(tsda->assets.shaders.sdf.shader);
+        DrawTexture(tsda->assets.textures[0], 0, 0, WHITE);
+    EndShaderMode();
     /*
     BeginMode3D(demo_heightmap_state.camera);
         DrawModel(demo_heightmap_state.model, demo_heightmap_state.position, 1.0f, R/
@@ -79,9 +91,14 @@ void draw() {
 }
 
 void step() {
-    tsda->b += 1;
+        tsda->b += 1;
         // Update
+        
+        
+        update_shaders(&tsda->assets.shaders);
        
+       viewport_w = GetScreenWidth();
+       viewport_h = GetScreenHeight();
         // ч происходит леш хх
        
         BeginDrawing();
@@ -108,6 +125,9 @@ bool loop() {
     return tsda->a > 2;
 }
 
+void load() {
+    load_assets(&tsda->assets);
+}
 
 void run() {
     tsda->a = 2;
@@ -130,8 +150,11 @@ void run() {
     tsda->b = 2;
     
     tsd_state_run(tsd_state);
+    load();
     
     tsda->b = 3;
+    
+    load();
     
     while(tsda->a > 1 && loop()) {};
 }
