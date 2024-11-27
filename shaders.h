@@ -4,10 +4,12 @@
 #define SHADERS_AUTO_RELOAD
 #define SHADERS_APP_COUNT 16
 #define SHADERS_INDEX_SDF 0
+#define SHADERS_INDEX_SPACESHIP 1
 
 static int shaders_loaded = 0;
 static const char* const shaders_filenames[] = {
-    SHADERS_PATH "sprite_sdf.fs"
+    SHADERS_PATH "sprite_sdf.fs",
+    SHADERS_PATH "sprite_ship.fs"
 };
 
 typedef struct TynShaderOutline {
@@ -19,11 +21,17 @@ typedef struct TynShaderSDF {
      int time_loc;
 } TynShaderSDF;
 
+typedef struct TynShaderShip {
+    Shader *shader;
+    int parts_loc;
+} TynShaderShip;
+
 typedef struct TynShaders {
     Shader shaders[SHADERS_APP_COUNT];
     int file_mod_times[SHADERS_APP_COUNT];
     TynShaderOutline outline;
     TynShaderSDF sdf;
+    TynShaderShip ship;
 } TynShaders;
 
 static void load_outline_shader(TynShaders *tynshaders, Vector2 texsize) {
@@ -46,7 +54,7 @@ static void load_outline_shader(TynShaders *tynshaders, Vector2 texsize) {
     tynshaders->outline = outline;
 }
 
-static void load_sdf_shader(TynShaders *tynshaders, int index) {
+static Shader load_shader(TynShaders *tynshaders, int index) {
     const char *filename = shaders_filenames[index];
     Shader shader = LoadShader(0,  filename);
      if (shader.id == rlGetShaderIdDefault()) { 
@@ -58,16 +66,36 @@ static void load_sdf_shader(TynShaders *tynshaders, int index) {
     tynshaders->shaders[index] = LoadShader(0,  filename);
     tynshaders->file_mod_times[index] = GetFileModTime(filename);
     
+    return shader;
+}
+
+static void load_sdf_shader(TynShaders *tynshaders, int index) {
+    load_shader(tynshaders, index);
     TynShaderSDF sdf = { 0 };
     sdf.shader = &tynshaders->shaders[index];
     sdf.time_loc = GetShaderLocation(*sdf.shader , "time");
      tynshaders->sdf = sdf;
 }
 
+static void load_ship_shader(TynShaders *tynshaders, int index) {
+    load_shader(tynshaders, index);
+    TynShaderShip ship = { 0 };
+    ship.shader = &tynshaders->shaders[index];
+    ship.parts_loc = GetShaderLocation(*ship.shader , "parts");
+     tynshaders->ship = ship;
+}
+
 void  update_shaders(TynShaders *tynshaders) {
  #ifdef SHADERS_AUTO_RELOAD
-    if (file_modified(shaders_filenames[SHADERS_INDEX_SDF], tynshaders->file_mod_times[SHADERS_INDEX_SDF])) {
+    if (file_modified(shaders_filenames[SHADERS_INDEX_SDF],                 
+        tynshaders->file_mod_times[SHADERS_INDEX_SDF])) 
+    {
         load_sdf_shader(tynshaders, SHADERS_INDEX_SDF);
+    }
+    if (file_modified(shaders_filenames[SHADERS_INDEX_SPACESHIP],                 
+        tynshaders->file_mod_times[SHADERS_INDEX_SPACESHIP])) 
+    {
+        load_ship_shader(tynshaders, SHADERS_INDEX_SPACESHIP);
     }
  #endif
  
@@ -81,7 +109,8 @@ TynShaders *load_shaders(TynShaders *tynshaders) {
         tynshaders->file_mod_times[i] = 0;
     }
     load_sdf_shader(tynshaders, SHADERS_INDEX_SDF);
-    shaders_loaded = 1;
+    load_ship_shader(tynshaders, SHADERS_INDEX_SPACESHIP);
+    shaders_loaded = 2;
      
     return tynshaders;
 }

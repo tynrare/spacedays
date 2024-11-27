@@ -6,10 +6,11 @@
 #ifndef ASSETS_H
 #define ASSETS_H
 
-#define TEXTURES_APP_COUNT 1
+#define TEXTURES_APP_COUNT 2
 
 static const char* const assets_filenames[] = {
-    TEXTURES_PATH "shipstest0.png"
+    TEXTURES_PATH "shipstest0.png",
+    TEXTURES_PATH "ship_a_sdf.png"
 };
 static int textures_loaded = 0;
 
@@ -20,10 +21,14 @@ typedef struct TynAssets {
 } TynAssets;
 
 static void load_texture(TynAssets *tynassets, int index) {
+    Texture texture = LoadTexture(assets_filenames[index]);
+    if (texture.id == 0) {
+        return;
+    }
     if (tynassets->file_mod_times[index] != 0) {
          UnloadTexture(tynassets->textures[index]);
-    }        
-    tynassets->textures[index] = LoadTexture(assets_filenames[index]);
+    }
+    tynassets->textures[index] = texture;
     tynassets->file_mod_times[index] = GetFileModTime(assets_filenames[index]);
 }
 

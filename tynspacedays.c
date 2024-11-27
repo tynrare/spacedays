@@ -6,7 +6,7 @@
 *   l241126 7:55am;
 *#  | 
 *   l241127 19:58am;
-*#  |  - sdf shaders; resources workflow.
+*#  |  - sdf shaders; resources workflow. First ship parts test.
 *   Welcome to raylib!
 *
 *
@@ -64,6 +64,8 @@ typedef struct TynsdApp {
     int r;
     TynspaceDaysState *tsds;
     TynAssets assets;
+    
+    RenderTexture2D render_tex0;
 } TynsdApp;
 
 TynsdApp *tsda = { 0 };
@@ -76,11 +78,48 @@ void init() {
     tsda->r = 0;
 }
 
+int test_ship_parts = 0b1111;
+
 void draw() {
     tsd_state_step(tsda->tsds);
-    BeginShaderMode(*tsda->assets.shaders.sdf.shader);
-        DrawTexture(tsda->assets.textures[0], 0, 0, WHITE);
+    
+    BeginTextureMode(tsda->render_tex0);
+        ClearBackground(BLANK);
+        BeginShaderMode(*tsda->assets.shaders.sdf.shader);
+    
+            DrawTexture(tsda->assets.textures[1], 0, 0, WHITE);
+        
+        EndShaderMode();
+    EndTextureMode();
+
+    if (IsKeyPressed(KEY_ONE)) {
+        test_ship_parts ^= 0b0001;
+    }
+    if (IsKeyPressed(KEY_TWO)) {
+        test_ship_parts ^= 0b0010;
+    }
+    if (IsKeyPressed(KEY_THREE)) {
+        test_ship_parts ^= 0b0100;
+    }
+    if (IsKeyPressed(KEY_FOUR)) {
+        test_ship_parts ^= 0b1000;
+    }
+
+    SetShaderValue(*tsda->assets.shaders.ship.shader, tsda->assets.shaders.ship.parts_loc, &test_ship_parts,
+    SHADER_UNIFORM_INT);
+    BeginShaderMode(*tsda->assets.shaders.ship.shader);
+
+        const Texture tex = tsda->render_tex0.texture;
+
+        DrawTexturePro(
+            tex, 
+            (Rectangle){ 0, 0, tex.width, -tex.height }, 
+            (Rectangle){ 128, 128, tex.width * 0.25, tex.height }, 
+            (Vector2) { 128, 128 }, 
+            GetTime() * 16, WHITE);
     EndShaderMode();
+    
+    
     /*
     BeginMode3D(demo_heightmap_state.camera);
         DrawModel(demo_heightmap_state.model, demo_heightmap_state.position, 1.0f, R/
@@ -124,35 +163,32 @@ bool loop() {
 
 void load() {
     load_assets(&tsda->assets);
+    tsda->render_tex0 = LoadRenderTexture(1024, 256);
 }
 
 void run() {
-    tsda->a = 2;
     tsda->b = 0;
     
     InitWindow(viewport_w, viewport_h, TITLE);
     SetWindowState(FLAG_WINDOW_RESIZABLE);
     SetTargetFPS(60);
-    tsda->r = 1;
-    load_rutopter();
-    tsda->r = 2;
     
     tsda->b = 1;
-    
-    tsda->d = 0;
-    
+    load_rutopter();
+
+    tsda->b = 2;
     TynspaceDaysState *tsd_state = tsd_state_init();
     tsda->tsds = tsd_state;
     
-    tsda->b = 2;
-    
-    tsd_state_run(tsd_state);
-    load();
-    
     tsda->b = 3;
+    tsd_state_run(tsd_state);
     
+    tsda->b = 4;
     load();
     
+    tsda->b = 5;
+    
+    tsda->a = 2;
     while(tsda->a > 1 && loop()) {};
 }
 
