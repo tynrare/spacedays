@@ -74,13 +74,11 @@ void init() {
     tsda->b = 0;
     tsda->d = 0;
     tsda->r = 0;
-
-
 }
 
 void draw() {
     tsd_state_step(tsda->tsds);
-    BeginShaderMode(tsda->assets.shaders.sdf.shader);
+    BeginShaderMode(*tsda->assets.shaders.sdf.shader);
         DrawTexture(tsda->assets.textures[0], 0, 0, WHITE);
     EndShaderMode();
     /*
@@ -94,8 +92,7 @@ void step() {
         tsda->b += 1;
         // Update
         
-        
-        update_shaders(&tsda->assets.shaders);
+       update_assets(&tsda->assets);
        
        viewport_w = GetScreenWidth();
        viewport_h = GetScreenHeight();

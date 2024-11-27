@@ -1,51 +1,41 @@
 #include "raylib.h"
 #include "raymath.h"
+#include "assets.h"
 
 #ifndef SPRITE_H
 #define SPRITE_H
 
 typedef struct Sprite {
-	Vector2 position;
-	Vector2 anchor;
-	int texture;
+    int index; // path to position and other possible data.
+	unsigned int texture;
 	float rotation;
 	float scale;
-	Color color;
 } Sprite;
 
-Sprite SpriteLoad(const char* fileName);
-Sprite SpriteCreate(Texture2D texture);
-void SpriteInit(Sprite *s, Texture2D texture);
-void SpriteDraw(Sprite* sprite);
-
-Sprite SpriteLoad(const char *fileName) {
-  return SpriteCreate(LoadTexture(fileName));
-}
-
-Sprite SpriteCreate(Texture2D texture) {
+Sprite SpriteCreate(int index, int texture) {
   Sprite s = {0};
-  SpriteInit(&s, texture);
+  SpriteInit(&s, index, texture);
 
   return s;
 }
 
-void SpriteInit(Sprite *s, Texture2D texture) {
-  s->position = (Vector2){0.0, 0.0};
-  s->anchor = (Vector2){0.5, 0.5};
+void SpriteInit(Sprite *s, int index, int texture) {
   s->rotation = 0.0;
   s->scale = 1.0;
   s->texture = texture;
-	s->color = WHITE;
+  s->index = index;
 }
 
-void SpriteDraw(Sprite *sprite) {
-  const float x = sprite->texture.width * sprite->scale * sprite->anchor.x;
-  const float y = sprite->texture.height * sprite->scale * sprite->anchor.y;
+void SpriteDraw(TynAssets *assets, Sprite *sprite, Vector2 *position) {
+  const Texture *texture = &assets->textures[sprite->texture];
+   
+  const float x = texture->width * sprite->scale * 0.5;
+  const float y = texture->height * sprite->scale ** 0.5;
   const Vector2 v0 = Vector2Rotate((Vector2){x, y}, sprite->rotation * DEG2RAD);
   const Vector2 v1 =
-      (Vector2){sprite->position.x - v0.x, sprite->position.y - v0.y};
+      (Vector2){position->x - v0.x, position->y - v0.y};
 
-  DrawTextureEx(sprite->texture, v1, sprite->rotation, sprite->scale, sprite->color);
+  DrawTextureEx(*texture, v1, sprite->rotation, sprite->scale, WHITE);
 }
 
 #endif

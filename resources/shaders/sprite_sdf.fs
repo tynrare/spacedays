@@ -26,7 +26,7 @@ void main()
     float outline = smoothstep(threshold + innerline + edge, threshold + innerline - edge, r);
     vec4 color = vec4(1.0, 1.0, 1.0, alpha);
     float t = (sin(time * 1.0 + r * 7.0) + 1.0) * 0.5;
-    color.rgb = mix(vec3(1.0, 0.0, 1.0), vec3(0.0, 1.0, 1.0), t);
+    color.rgb = mix(vec3(1.0, 1.0, 1.0), vec3(1.0, 0.0, 1.0), t);
     color = mix(color, innerline_color, outline);
     color.a = alpha;
     gl_FragColor = color;
