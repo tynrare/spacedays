@@ -18,7 +18,9 @@
 #include "demo_heightmap.h"
 #include "assets.h"
 
-#define WATTS 1.2
+#define WATTS 0.3
+#define FREC 0.1
+#define WAVE 0.7
 
 #define TYCOMPAS "tyc."
 #define TYSCANNER "tys!"
@@ -46,11 +48,22 @@ TynsdApp *tsda = { 0 };
 
 void tsd_state_step(TynspaceDaysState *tsd_state) {
     float watts = WATTS;
-    float frec = 1;
+    float frec = FREC;
     Vector2 mp = getmp();
     Vector2 bp = { 0 };
     Color fblue = Fade(BLUE, 1);
-    float st = sinf(GetTime() * frec);
+    float st = (sinf(GetTime() * frec)) * WAVE;
+    
+    DrawCircle(mp.x, mp.y, 8, st > 0 ? RED : BLUE);
+    
+    if (IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {
+        st = 1;
+        watts *= 1.2;
+    }
+     if (IsMouseButtonDown(MOUSE_RIGHT_BUTTON)) {
+        st = -1;
+        watts *= 1.2;
+    }
     
     draw_text_ru("компас. ", 18, 18, RED);
     DrawTextRu("компас. ", 16, 16);
@@ -66,14 +79,17 @@ void tsd_state_step(TynspaceDaysState *tsd_state) {
         bp.y = *y;
         Vector2 delta = Vector2Subtract(mp, bp);
         Vector2 dn = Vector2Normalize(delta);
-        //float distance = Vector2Length(delta);
-        Vector2 sdn = Vector2Scale(dn, st);
+        float distance = Vector2Length(delta);
+        float ldist = logf(distance);
+        float wld = powf(2, watts);
+        Vector2 sdn = Vector2Scale(dn, st * ldist * wld);
+        
         const int dx = GetRandomValue(-watts + sdn.x, watts + sdn.x);
         const int dy = GetRandomValue(-watts + sdn.y, watts + sdn.y);
         *x += dx;
         *y += dy;
         
-        float angle = Vector2Angle(vleft, (Vector2) { dx, dy });
+        float angle = Vector2Angle(vup, (Vector2) { dx, dy }) - 0;
         
        const Texture tex = tsda->render_tex1.texture;
 
@@ -85,6 +101,7 @@ void tsd_state_step(TynspaceDaysState *tsd_state) {
             angle * RAD2DEG, WHITE);
         DrawRectangle(*x, *y, 2, 2, RED);
     }
+
 }
 
 void init() {

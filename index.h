@@ -19,8 +19,17 @@ const Vector2 vup = { 0, -1 };
 const Vector2 vdown = { 0, 1 };
 const Vector2 vzero = { 0, 0 };
 
+Vector2 lmp = { -1, -1 };
 Vector2 getmp() {
-    //Vector2 mp = GetMousePosition();
+    if (IsMouseButtonDown(MOUSE_LEFT_BUTTON) || IsMouseButtonDown(MOUSE_RIGHT_BUTTON)) {
+        lmp = GetMousePosition();
+        return lmp;
+    }
+    
+    if (lmp.x != -1 && lmp.y != -1) {
+        return lmp;
+    }
+    
     Vector2 mp = { GetScreenWidth() * 0.5, GetScreenHeight() * 0.5 };
     return mp;
 };
