@@ -6,11 +6,18 @@
 #ifndef ASSETS_H
 #define ASSETS_H
 
-#define TEXTURES_APP_COUNT 2
+#define TEXTURES_APP_COUNT 5
+
+#define TEXTURES_INDEX_SHIP 1
+#define TEXTURES_INDEX_GRADIENT 4
 
 static const char* const assets_filenames[] = {
     TEXTURES_PATH "shipstest0.png",
-    TEXTURES_PATH "ship_a_sdf.png"
+    TEXTURES_PATH "ship_a_sdf.png",
+    TEXTURES_PATH "ship_a_sdf-8b-0n.png",
+    TEXTURES_PATH "gradient.png",
+    TEXTURES_PATH "gradient-32px.png",
+    TEXTURES_PATH "gradient-32px-b.png"
 };
 static int textures_loaded = 0;
 
@@ -40,8 +47,13 @@ void update_assets(TynAssets *tynassets) {
       }
   }
  #endif
- 
-    update_shaders(&tynassets->shaders);
+
+    TynShaders *tynshaders = &tynassets->shaders;
+    update_shaders(tynshaders);
+     
+    Texture *texture1_gradient = &tynassets->textures[TEXTURES_INDEX_GRADIENT];
+    
+    SetShaderValue(*tynshaders->sdf.shader, tynshaders->sdf.texture1_gradient_loc, texture1_gradient, SHADER_UNIFORM_SAMPLER2D);
 }
 
 TynAssets *load_assets(TynAssets *tynassets) {

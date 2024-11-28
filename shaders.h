@@ -18,7 +18,8 @@ typedef struct TynShaderOutline {
 
 typedef struct TynShaderSDF {
     Shader *shader;
-     int time_loc;
+    int time_loc;
+    int texture1_gradient_loc; 
 } TynShaderSDF;
 
 typedef struct TynShaderShip {
@@ -74,6 +75,8 @@ static void load_sdf_shader(TynShaders *tynshaders, int index) {
     TynShaderSDF sdf = { 0 };
     sdf.shader = &tynshaders->shaders[index];
     sdf.time_loc = GetShaderLocation(*sdf.shader , "time");
+     tynshaders->sdf = sdf;
+    sdf.texture1_gradient_loc = GetShaderLocation(*sdf.shader , "texture1_gradient");
      tynshaders->sdf = sdf;
 }
 

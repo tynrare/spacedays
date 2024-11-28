@@ -18,7 +18,7 @@
 #include "demo_heightmap.h"
 #include "assets.h"
 
-#define WATTS 4.2
+#define WATTS 1.2
 
 #define TYCOMPAS "tyc."
 #define TYSCANNER "tys!"
@@ -26,6 +26,23 @@
 #define TITLE "Tynspace days. wit"
 
 #define PRINT_VALUE(value) printf("Value of %s is %d", #value, value);
+
+
+typedef struct TynsdApp {
+    int a;
+    int b;
+    int d;
+    int r;
+    int c;
+    TynspaceDaysState *tsds;
+    TynAssets assets;
+    
+    RenderTexture2D render_tex0;
+    RenderTexture2D render_tex1;
+} TynsdApp;
+
+TynsdApp *tsda = { 0 };
+
 
 void tsd_state_step(TynspaceDaysState *tsd_state) {
     float watts = WATTS;
@@ -51,27 +68,28 @@ void tsd_state_step(TynspaceDaysState *tsd_state) {
         Vector2 dn = Vector2Normalize(delta);
         //float distance = Vector2Length(delta);
         Vector2 sdn = Vector2Scale(dn, st);
-        *x += GetRandomValue(-watts + sdn.x, watts + sdn.x);
-        *y += GetRandomValue(-watts + sdn.y, watts + sdn.y);
-        DrawRectangle(*x, *y, 16, 16, fblue);
+        const int dx = GetRandomValue(-watts + sdn.x, watts + sdn.x);
+        const int dy = GetRandomValue(-watts + sdn.y, watts + sdn.y);
+        *x += dx;
+        *y += dy;
+        
+        float angle = Vector2Angle(vleft, (Vector2) { dx, dy });
+        
+       const Texture tex = tsda->render_tex1.texture;
+
+        DrawTexturePro(
+            tex, 
+            (Rectangle){ 0, 0, tex.width, -tex.height }, 
+            (Rectangle){ *x, *y, tex.width, tex.height }, 
+            (Vector2) { 128, 128 }, 
+            angle * RAD2DEG, WHITE);
+        DrawRectangle(*x, *y, 2, 2, RED);
     }
 }
 
-typedef struct TynsdApp {
-    int a;
-    int b;
-    int d;
-    int r;
-    TynspaceDaysState *tsds;
-    TynAssets assets;
-    
-    RenderTexture2D render_tex0;
-} TynsdApp;
-
-TynsdApp *tsda = { 0 };
-
 void init() {
     tsda = malloc(sizeof(TynsdApp));
+    tsda->c = 0;
     tsda->a = 1;
     tsda->b = 0;
     tsda->d = 0;
@@ -85,39 +103,31 @@ void draw() {
     
     BeginTextureMode(tsda->render_tex0);
         ClearBackground(BLANK);
+            
         BeginShaderMode(*tsda->assets.shaders.sdf.shader);
     
-            DrawTexture(tsda->assets.textures[1], 0, 0, WHITE);
+            const index = (TEXTURES_INDEX_SHIP + tsda->c) % TEXTURES_APP_COUNT;
+            DrawTexture(tsda->assets.textures[index], 0, 0, WHITE);
         
         EndShaderMode();
     EndTextureMode();
 
-    if (IsKeyPressed(KEY_ONE)) {
-        test_ship_parts ^= 0b0001;
-    }
-    if (IsKeyPressed(KEY_TWO)) {
-        test_ship_parts ^= 0b0010;
-    }
-    if (IsKeyPressed(KEY_THREE)) {
-        test_ship_parts ^= 0b0100;
-    }
-    if (IsKeyPressed(KEY_FOUR)) {
-        test_ship_parts ^= 0b1000;
-    }
-
-    SetShaderValue(*tsda->assets.shaders.ship.shader, tsda->assets.shaders.ship.parts_loc, &test_ship_parts,
-    SHADER_UNIFORM_INT);
-    BeginShaderMode(*tsda->assets.shaders.ship.shader);
+    
+   BeginTextureMode(tsda->render_tex1);
+        ClearBackground(BLANK);
+        BeginShaderMode(*tsda->assets.shaders.ship.shader);
 
         const Texture tex = tsda->render_tex0.texture;
-
+        //const angle = GetTime() * 16;
+        const angle = 0.0f;
         DrawTexturePro(
             tex, 
             (Rectangle){ 0, 0, tex.width, -tex.height }, 
             (Rectangle){ 128, 128, tex.width * 0.25, tex.height }, 
             (Vector2) { 128, 128 }, 
-            GetTime() * 16, WHITE);
-    EndShaderMode();
+            angle, WHITE);
+        EndShaderMode();
+    EndTextureMode();
     
     
     /*
@@ -130,6 +140,25 @@ void draw() {
 void step() {
         tsda->b += 1;
         // Update
+   if (IsKeyPressed(KEY_SPACE)) {
+    tsda->c = (tsda->c + 1) % TEXTURES_APP_COUNT;
+   }
+        
+    if (IsKeyPressed(KEY_ONE)) {
+        test_ship_parts ^= 0b0001;
+    }
+    if (IsKeyPressed(KEY_TWO)) {
+        test_ship_parts ^= 0b0010;
+    }
+    if (IsKeyPressed(KEY_THREE)) {
+        test_ship_parts ^= 0b0100;
+    }
+    if (IsKeyPressed(KEY_FOUR)) {
+        test_ship_parts ^= 0b1000;
+    }
+    
+    SetShaderValue(*tsda->assets.shaders.ship.shader, tsda->assets.shaders.ship.parts_loc, &test_ship_parts,
+    SHADER_UNIFORM_INT);
         
        update_assets(&tsda->assets);
        
@@ -164,6 +193,7 @@ bool loop() {
 void load() {
     load_assets(&tsda->assets);
     tsda->render_tex0 = LoadRenderTexture(1024, 256);
+    tsda->render_tex1 = LoadRenderTexture(256, 256);
 }
 
 void run() {
