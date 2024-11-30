@@ -22,6 +22,9 @@
 #define FREC 0.1
 #define WAVE 0.7
 
+#define TYCOMPAS "tyc."
+#define TYSCANNER "tys!"
+
 #define TITLE "Tynspace days. wit"
 
 #define PRINT_VALUE(value) printf("Value of %s is %d", #value, value);
@@ -48,10 +51,10 @@ void tsd_state_step(TynspaceDaysState *tsd_state) {
     float frec = FREC;
     Vector2 mp = getmp();
     Vector2 bp = { 0 };
-    int st = 0;
-    const Color stcolors[] = {RED, WHITE, BLUE};
+    Color fblue = Fade(BLUE, 1);
+    float st = (sinf(GetTime() * frec)) * WAVE;
     
-    
+    DrawCircle(mp.x, mp.y, 8, st > 0 ? RED : BLUE);
     
     if (IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {
         st = 1;
@@ -62,12 +65,13 @@ void tsd_state_step(TynspaceDaysState *tsd_state) {
         watts *= 1.2;
     }
     
-    DrawCircle(mp.x, mp.y, 8, stcolors[st + 1]);
+    draw_text_ru("компас. ", 18, 18, RED);
+    DrawTextRu("компас. ", 16, 16);
     
-    draw_text_ru(RSCANNER, 18, 18 + rufont_size * 0, st == -1 ? BLUE : WHITE);
-    draw_text_ru("hold. ", 18, 18 + rufont_size * 1, st ==  0 ? RED  : WHITE);
-    draw_text_ru(RCOMPAS , 18, 18 + rufont_size * 2, st ==  1 ? RED  : WHITE);
+    DrawTextEx(rufont, RSCANNER, (Vector2){ 18, 56 }, rufont_size, 2, st > 0 ? RED : BLUE);
+    DrawTextEx(rufont, RSCANNER, (Vector2){ 16, 54 }, rufont_size, 2, st < 0 ? RED : BLUE);
 
+    DrawText(st > 0 ? TYCOMPAS : TYSCANNER, viewport_w * 0.5, viewport_h * 0.5, 60, BLACK);
     for (TynPoolCell *p = tsd_state->bpool->active; p; p = p->next) {
         float *x = p->point;
         float *y = x + 1;
@@ -80,14 +84,13 @@ void tsd_state_step(TynspaceDaysState *tsd_state) {
         float wld = powf(2, watts);
         Vector2 sdn = Vector2Scale(dn, st * ldist * wld);
         
-        const float dx = ((float)GetRandomValue(-1, 1) + sdn.x) * watts;
-        const float dy = ((float)GetRandomValue(-1, 1) + sdn.y) * watts;
+        const int dx = GetRandomValue(-watts + sdn.x, watts + sdn.x);
+        const int dy = GetRandomValue(-watts + sdn.y, watts + sdn.y);
         *x += dx;
         *y += dy;
         
         float angle = Vector2Angle(vup, (Vector2) { dx, dy }) - 0;
         
-        /*
        const Texture tex = tsda->render_tex1.texture;
 
         DrawTexturePro(
@@ -96,7 +99,6 @@ void tsd_state_step(TynspaceDaysState *tsd_state) {
             (Rectangle){ *x, *y, tex.width, tex.height }, 
             (Vector2) { 128, 128 }, 
             angle * RAD2DEG, WHITE);
-            */
         DrawRectangle(*x, *y, 2, 2, RED);
     }
 
@@ -113,30 +115,9 @@ void init() {
 
 int test_ship_parts = 0b1111;
 
-void tynspaceship_step() {
-   if (IsKeyPressed(KEY_SPACE)) {
-        tsda->c = (tsda->c + 1) % TEXTURES_APP_COUNT;
-       }
-       
-    if (IsKeyPressed(KEY_ONE)) {
-        test_ship_parts ^= 0b0001;
-    }
-    if (IsKeyPressed(KEY_TWO)) {
-        test_ship_parts ^= 0b0010;
-    }
-    if (IsKeyPressed(KEY_THREE)) {
-        test_ship_parts ^= 0b0100;
-    }
-    if (IsKeyPressed(KEY_FOUR)) {
-        test_ship_parts ^= 0b1000;
-    }
+void draw() {
+    tsd_state_step(tsda->tsds);
     
-    SetShaderValue(*tsda->assets.shaders.ship.shader, tsda->assets.shaders.ship.parts_loc, &test_ship_parts,
-    SHADER_UNIFORM_INT);
-}
-
-void tynspaceship_draw() {
-      
     BeginTextureMode(tsda->render_tex0);
         ClearBackground(BLANK);
             
@@ -164,11 +145,6 @@ void tynspaceship_draw() {
             angle, WHITE);
         EndShaderMode();
     EndTextureMode();
-}
-
-void draw() {
-    tsd_state_step(tsda->tsds);
-  
     
     
     /*
@@ -179,11 +155,27 @@ void draw() {
 }
 
 void step() {
-    tsda->b += 1;
-    // Update
-
+        tsda->b += 1;
+        // Update
+   if (IsKeyPressed(KEY_SPACE)) {
+    tsda->c = (tsda->c + 1) % TEXTURES_APP_COUNT;
+   }
+        
+    if (IsKeyPressed(KEY_ONE)) {
+        test_ship_parts ^= 0b0001;
+    }
+    if (IsKeyPressed(KEY_TWO)) {
+        test_ship_parts ^= 0b0010;
+    }
+    if (IsKeyPressed(KEY_THREE)) {
+        test_ship_parts ^= 0b0100;
+    }
+    if (IsKeyPressed(KEY_FOUR)) {
+        test_ship_parts ^= 0b1000;
+    }
     
-        tynspaceship_step();
+    SetShaderValue(*tsda->assets.shaders.ship.shader, tsda->assets.shaders.ship.parts_loc, &test_ship_parts,
+    SHADER_UNIFORM_INT);
         
        update_assets(&tsda->assets);
        

@@ -14,7 +14,7 @@
 #define PRINTTTEXT "Орнитоптер: летательный аппарат, способный зависать на месте. \nИмеет крылья, подобные птичьим"
 #define RCOMPAS "Компас"
 #define RSCANNER "Сканер"
-#define RALLPRINTTEXT PRINTTTEXT RCOMPAS RSCANNER
+#define RALLPRINTTEXT FONT_TEXT PRINTTTEXT RCOMPAS RSCANNER
     
 
 static Font rufont = {0};
