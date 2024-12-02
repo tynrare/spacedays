@@ -32,8 +32,9 @@ vec4 sdf0() {
     vec4 color = colora;
     color.a = alpha;
     color.rgb = mix(color.rgb, colorb.rgb, outline);
-    float rr = r * 8.0 + time;
-    color.rgb = mix(color.rgb, colorc.rgb, (alpha - outline) * sin(rr));
+    float rr = r + time;
+    float t = (alpha - outline) * sin(rr * 0.01);
+    color.rgb = mix(color.rgb, colorc.rgb, rr);
     
     return color;
 }

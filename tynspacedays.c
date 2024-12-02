@@ -119,7 +119,7 @@ void tsd_state_step(TynspaceDaysState *tsd_state) {
     draw_text_ru("hold. ", 18, 18 + rufont_size * 1, st ==  0 ? RED  : WHITE);
     draw_text_ru(RCOMPAS , 18, 18 + rufont_size * 2, st ==  1 ? RED  : WHITE);
     
-    BeginBlendMode(BLEND_ADDITIVE);
+    BeginBlendMode(BLEND_ADD_COLORS);
 
     for (TynPoolCell *p = tsd_state->bpool->active; p; p = p->next) {
         float *x = p->point;
