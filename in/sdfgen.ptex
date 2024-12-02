@@ -47,6 +47,12 @@
 			"from_port": 0,
 			"to": "Material",
 			"to_port": 0
+		},
+		{
+			"from": "math",
+			"from_port": 0,
+			"to": "invert_2",
+			"to_port": 0
 		}
 	],
 	"label": "Graph",
@@ -63,7 +69,7 @@
 			},
 			"name": "Material",
 			"node_position": {
-				"x": 340,
+				"x": 520,
 				"y": -200
 			},
 			"parameters": {
@@ -96,7 +102,7 @@
 			"parameters": {
 				"clamp": false,
 				"fix_ar": true,
-				"image": "%PROJECT_PATH%/ship_a/ship_a_pack.png"
+				"image": "C:/Users/Win10_Game_OS/Pictures/ship_b_3_sdf-1b.png"
 			},
 			"seed_int": 0,
 			"type": "image"
@@ -189,6 +195,18 @@
 			},
 			"seed_int": 0,
 			"type": "math"
+		},
+		{
+			"name": "invert_2",
+			"node_position": {
+				"x": 340,
+				"y": -360
+			},
+			"parameters": {
+
+			},
+			"seed_int": 0,
+			"type": "invert"
 		}
 	],
 	"parameters": {

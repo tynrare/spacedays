@@ -66,7 +66,7 @@ void locomotion_push(float *x, float *y, float *dirx, float *diry, Vector2 goal)
     *diry = newdir.y;
 }
 
-#define PAD_LVBT 16
+#define PAD_LVBT 1024
 
 void loc_viewport_bound_teleport(float *x, float *y) {
     if (*x < -PAD_LVBT) {
@@ -91,12 +91,12 @@ void tsd_state_step(TynspaceDaysState *tsd_state) {
         target = Vector2Subtract(mp, tsd_state->camera.offset);
     }
     
-    int st = 0;
+    int st = 1;
     const Color stcolors[] = {RED, WHITE, BLUE};
     
     if (IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {
         st = 1;
-        watts *= 1.2;
+        watts *= 6;
     }
      if (IsMouseButtonDown(MOUSE_RIGHT_BUTTON)) {
         st = -1;
@@ -118,6 +118,8 @@ void tsd_state_step(TynspaceDaysState *tsd_state) {
     draw_text_ru(RSCANNER, 18, 18 + rufont_size * 0, st == -1 ? BLUE : WHITE);
     draw_text_ru("hold. ", 18, 18 + rufont_size * 1, st ==  0 ? RED  : WHITE);
     draw_text_ru(RCOMPAS , 18, 18 + rufont_size * 2, st ==  1 ? RED  : WHITE);
+    
+    BeginBlendMode(BLEND_ADDITIVE);
 
     for (TynPoolCell *p = tsd_state->bpool->active; p; p = p->next) {
         float *x = p->point;
@@ -143,15 +145,18 @@ void tsd_state_step(TynspaceDaysState *tsd_state) {
 
         const Texture tex = tsda->render_tex1.texture;
 
+        const float scale = 8.0f;
         DrawTexturePro(
             tex, 
             (Rectangle){ 0, 0, tex.width, -tex.height }, 
-            (Rectangle){ *x, *y, tex.width * 0.5, tex.height * 0.5 }, 
-            (Vector2) { 64, 64 }, 
+            (Rectangle){ *x, *y, tex.width * scale, tex.height * scale }, 
+            (Vector2) { 128 * scale, 128 * scale }, 
             angle * RAD2DEG, WHITE);
 
 
     }
+    
+    EndBlendMode();
 
     if (tsd_state->tyntbox.camera) {
         EndMode2D();
@@ -240,6 +245,11 @@ void tynspaceship_draw() {
             angle, WHITE);
         EndShaderMode();
     EndTextureMode();
+    
+    if (tsda->tsds->tyntbox.texture_preview) {
+        DrawTexture(tsda->render_tex1.texture, 2, 2, WHITE);
+        DrawTexture(tsda->render_tex0.texture, tsda->render_tex1.texture.width + 2, 2, WHITE);
+    }
 }
 
 void draw() {
@@ -271,7 +281,7 @@ void step() {
        
         BeginDrawing();
 
-        ClearBackground(tsda->tsds->tyntbox.greenscreen ? GREEN : WHITE);
+        ClearBackground(tsda->tsds->tyntbox.greenscreen ? GREEN : BLACK);
         
         draw();
         

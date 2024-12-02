@@ -9,15 +9,17 @@
 #define TEXTURES_APP_COUNT 5
 
 #define TEXTURES_INDEX_SHIP 1
-#define TEXTURES_INDEX_GRADIENT 4
+#define TEXTURES_INDEX_GRADIENT 0
 
 static const char* const assets_filenames[] = {
+    TEXTURES_PATH "gradient.png",
+    TEXTURES_PATH "ship_b_0.png",
     TEXTURES_PATH "shipstest0.png",
     TEXTURES_PATH "ship_a_sdf.png",
     TEXTURES_PATH "ship_a_sdf-8b-0n.png",
-    TEXTURES_PATH "gradient.png",
     TEXTURES_PATH "gradient-32px.png",
     TEXTURES_PATH "gradient-32px-b.png"
+    "ship_b_0.png"
 };
 static int textures_loaded = 0;
 

@@ -13,14 +13,14 @@ uniform sampler2D texture1_gradient;
 
 uniform float time;
 
-float threshold = 0.49;
+float threshold = 0.56;
 
-float edge = 0.01;
-float innerline = 0.04;
+float edge = 0.1;
+float innerline = 0.02;
 
-vec4 colora = vec4(0.0, 0.0, 0.0, 0.0);
-vec4 colorb = vec4(1.0, 0.0, 0.0, 1.0);
-vec4 colorc = vec4(1.0 , 1.0, 1.0, 0.0);
+vec4 colora = vec4(0.01, 0.01, 0.01, 0.01);
+vec4 colorb = vec4(0.01, 0.01, 0.0, 0.01);
+vec4 colorc = vec4(0.01 , 0.0, 0.01, 0.01);
 
 vec4 sdf0() {
     vec4 texel = texture2D(texture0, fragTexCoord); 

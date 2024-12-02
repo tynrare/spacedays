@@ -5,12 +5,15 @@
 #define TYNSPACEDAYS_H
 #define bood bool
 
+#define SPACE_IBOUNDS 2048
+
 typedef struct TunspaceToolbox {
     bood hold;
     bool compas;
     bool scaner;
     bool camera;
     bool greenscreen;
+    bool texture_preview;
 } TunspaceToolbox;
 
 typedef struct TynspaceDaysState {
@@ -55,8 +58,8 @@ void tsd_state_run(TynspaceDaysState *tsd_state) {
         float *y = x + 1;
         float *dx = x + 2;
         float *dy = x + 3;
-        *x += GetRandomValue(- 32, + 32);
-        *y += GetRandomValue(- 32, + 32);
+        *x += GetRandomValue(-SPACE_IBOUNDS, SPACE_IBOUNDS);
+        *y += GetRandomValue(-SPACE_IBOUNDS, SPACE_IBOUNDS);
         *dx = 0.0f;
         *dy = 1.0f;
     }
@@ -81,6 +84,7 @@ TynspaceDaysState *tsd_state_init() {
     
     tsd_state->tyntbox.camera = false;
     tsd_state->tyntbox.greenscreen = false;
+    tsd_state->tyntbox.texture_preview = true;
     
     Camera2D *camera = &tsd_state->camera;
     camera->offset = (Vector2){ viewport_w * 0.5, viewport_h * 0.5 };
