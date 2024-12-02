@@ -18,8 +18,8 @@
 #include "include/demo_heightmap.h"
 #include "include/assets.h"
 
-#define WATTS 1
-#define FREC 1
+#define WATTS 2
+#define FREC 2
 #define WAVE 0.7
 
 #define TITLE "Tynspace days. wit"
@@ -50,6 +50,13 @@ void locomotion_pull(float *x, float *y, float *dirx, float *diry, Vector2 goal)
     Vector2 ndir = Vector2Normalize(dir);
     float angle = Vector2Angle(ndir, ngoaldelta);
     Vector2 newdir = Vector2Rotate(dir, angle * GetFrameTime() * FREC);
+    Vector2 nnewdir = Vector2Normalize(newdir);
+    Vector2 snewdir = Vector2Scale(
+              nnewdir,
+              Vector2DotProduct(ngoaldelta, nnewdir)
+             );
+    newdir.x = dlerp(newdir.x, snewdir.x, 0.1, GetFrameTime());
+    newdir.y = dlerp(newdir.y, snewdir.y, 0.1, GetFrameTime());
     *dirx = newdir.x;
     *diry = newdir.y;
 }
@@ -57,11 +64,19 @@ void locomotion_pull(float *x, float *y, float *dirx, float *diry, Vector2 goal)
 void locomotion_push(float *x, float *y, float *dirx, float *diry, Vector2 goal) {
     Vector2 pos = { *x, *y };
     Vector2 dir = { *dirx, *diry };
-    Vector2 goaldelta = Vector2Subtract(goal, pos);
-    Vector2 ngoaldelta = Vector2Negate(Vector2Normalize(goaldelta));
+    Vector2 goaldelta = Vector2Subtract(pos, goal);
+    Vector2 ngoaldelta = Vector2Normalize(goaldelta);
     Vector2 ndir = Vector2Normalize(dir);
     float angle = Vector2Angle(ndir, ngoaldelta);
     Vector2 newdir = Vector2Rotate(dir, angle * GetFrameTime() * FREC);
+    Vector2 nnewdir = Vector2Normalize(newdir);
+    Vector2 snewdir = Vector2Scale(
+              nnewdir,
+              Vector2DotProduct(ngoaldelta, nnewdir)
+             );
+    newdir.x = dlerp(newdir.x, snewdir.x, 0.1, GetFrameTime());
+    newdir.y = dlerp(newdir.y, snewdir.y, 0.1, GetFrameTime());
+    
     *dirx = newdir.x;
     *diry = newdir.y;
 }
@@ -100,7 +115,7 @@ void tsd_state_step(TynspaceDaysState *tsd_state) {
     }
      if (IsMouseButtonDown(MOUSE_RIGHT_BUTTON)) {
         st = -1;
-        watts *= 42;
+        watts *= 1.4;
     }
     
         
