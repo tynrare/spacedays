@@ -18,7 +18,7 @@
 #include "include/demo_heightmap.h"
 #include "include/assets.h"
 
-#define WATTS 0.3
+#define WATTS 3
 #define FREC 0.1
 #define WAVE 0.7
 
@@ -42,16 +42,38 @@ typedef struct TynsdApp {
 
 TynsdApp *tsda = { 0 };
 
+void locomotion_pull(float *x, float *y, float *dirx, float *diry, Vector2 goal) {
+    Vector2 pos = { *x, *y };
+    Vector2 dir = { *dirx, *diry };
+    Vector2 goaldelta = Vector2Subtract(goal, pos);
+    Vector2 ngoaldelta = Vector2Normalize(goaldelta);
+    Vector2 ndir = Vector2Normalize(dir);
+    float angle = Vector2Angle(ndir, ngoaldelta);
+    Vector2 newdir = Vector2Rotate(dir, angle * GetFrameTime());
+    *dirx = newdir.x;
+    *diry = newdir.y;
+}
+
+void locomotion_push(float *x, float *y, float *dirx, float *diry, Vector2 goal) {
+    Vector2 pos = { *x, *y };
+    Vector2 dir = { *dirx, *diry };
+    Vector2 goaldelta = Vector2Subtract(goal, pos);
+    Vector2 ngoaldelta = Vector2Negate(Vector2Normalize(goaldelta));
+    Vector2 ndir = Vector2Normalize(dir);
+    float angle = Vector2Angle(ndir, ngoaldelta);
+    Vector2 newdir = Vector2Rotate(dir, angle * GetFrameTime());
+    *dirx = newdir.x;
+    *diry = newdir.y;
+}
 
 void tsd_state_step(TynspaceDaysState *tsd_state) {
     float watts = WATTS;
     float frec = FREC;
     Vector2 mp = getmp();
-    Vector2 bp = { 0 };
+    Vector2 target = Vector2Subtract(mp, tsd_state->camera.offset);
+    
     int st = 0;
     const Color stcolors[] = {RED, WHITE, BLUE};
-    
-    
     
     if (IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {
         st = 1;
@@ -62,7 +84,10 @@ void tsd_state_step(TynspaceDaysState *tsd_state) {
         watts *= 1.2;
     }
     
+        
     DrawCircle(mp.x, mp.y, 8, stcolors[st + 1]);
+    
+    BeginMode2D(tsd_state->camera);
     
     draw_text_ru(RSCANNER, 18, 18 + rufont_size * 0, st == -1 ? BLUE : WHITE);
     draw_text_ru("hold. ", 18, 18 + rufont_size * 1, st ==  0 ? RED  : WHITE);
@@ -71,35 +96,36 @@ void tsd_state_step(TynspaceDaysState *tsd_state) {
     for (TynPoolCell *p = tsd_state->bpool->active; p; p = p->next) {
         float *x = p->point;
         float *y = x + 1;
-        bp.x = *x;
-        bp.y = *y;
-        Vector2 delta = Vector2Subtract(mp, bp);
-        Vector2 dn = Vector2Normalize(delta);
-        float distance = Vector2Length(delta);
-        float ldist = logf(distance);
-        float wld = powf(2, watts);
-        Vector2 sdn = Vector2Scale(dn, st * ldist * wld);
+        float *dx = x + 2;
+        float *dy = x + 3;
         
-        const float dx = ((float)GetRandomValue(-1, 1) + sdn.x) * watts;
-        const float dy = ((float)GetRandomValue(-1, 1) + sdn.y) * watts;
-        *x += dx;
-        *y += dy;
+        if (st == 1) {
+            locomotion_pull(x, y, dx, dy, target); // pull in
+        } else if (st == -1) {
+            locomotion_push(x, y, dx, dy, target); // push out
+        }
         
-        float angle = Vector2Angle(vup, (Vector2) { dx, dy }) - 0;
+        *x += *dx * watts;
+        *y += *dy * watts;
         
-        /*
-       const Texture tex = tsda->render_tex1.texture;
+        float angle = Vector2Angle(vup, (Vector2) { *dx, *dy }) - 0;
+        DrawRectangle(*x, *y, 2, 2, RED);
+        DrawLine(*x, *y, *x + *dx * 10, *y + *dy * 10, BLUE);
+        
+
+        const Texture tex = tsda->render_tex1.texture;
 
         DrawTexturePro(
             tex, 
             (Rectangle){ 0, 0, tex.width, -tex.height }, 
-            (Rectangle){ *x, *y, tex.width, tex.height }, 
-            (Vector2) { 128, 128 }, 
+            (Rectangle){ *x, *y, tex.width * 0.5, tex.height * 0.5 }, 
+            (Vector2) { 64, 64 }, 
             angle * RAD2DEG, WHITE);
-            */
-        DrawRectangle(*x, *y, 2, 2, RED);
+
+
     }
 
+    EndMode2D();
 }
 
 void init() {
@@ -167,6 +193,7 @@ void tynspaceship_draw() {
 }
 
 void draw() {
+    tynspaceship_draw();
     tsd_state_step(tsda->tsds);
   
     

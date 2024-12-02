@@ -1,6 +1,8 @@
 #include "raylib.h"
 #include "raymath.h"
 
+#include "math.h"
+
 #include "ru.h"
 #include "tynpool.h"
 
@@ -12,12 +14,6 @@
 
 int viewport_w = VIEWPORT_W;
 int viewport_h = VIEWPORT_H;
-
-const Vector2 vleft = { -1, 0 };
-const Vector2 vright = { 1, 0 };
-const Vector2 vup = { 0, -1 };
-const Vector2 vdown = { 0, 1 };
-const Vector2 vzero = { 0, 0 };
 
 Vector2 lmp = { -1, -1 };
 Vector2 getmp() {

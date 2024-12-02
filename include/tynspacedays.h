@@ -13,6 +13,7 @@ typedef struct TunspaceToolbox {
 
 typedef struct TynspaceDaysState {
     struct TynPool *bpool;
+    Camera2D camera;
     TunspaceToolbox tyntbox;
 } TynspaceDaysState;
 
@@ -31,14 +32,24 @@ void tsd_state_run(TynspaceDaysState *tsd_state) {
         TynPoolCell *cell = tynpool_cell_alloc(tsd_state->bpool);
         float *x = cell->point;
         float *y = x + 1;
-        *x += GetRandomValue(viewport_w * 0.5 - 32, viewport_w * 0.5 + 32);
-        *y += GetRandomValue(viewport_h * 0.5 - 32, viewport_h * 0.5 + 32);
+        float *dx = x + 2;
+        float *dy = x + 3;
+        *x += GetRandomValue(- 32, + 32);
+        *y += GetRandomValue(- 32, + 32);
+        *dx = 0.0f;
+        *dy = 1.0f;
     }
 }
 
 TynspaceDaysState *tsd_state_init() {
     TynspaceDaysState *tsd_state = malloc(sizeof(TynspaceDaysState));
     tsd_state->bpool = typool_allocate(1024, sizeof(float) * 4);
+    
+    Camera2D *camera = &tsd_state->camera;
+    camera->offset = (Vector2){ viewport_w * 0.5, viewport_h * 0.5 };
+    camera->target = (Vector2){ 0.0f, 0.0f };
+    camera->rotation = 0.0f;
+    camera->zoom = 0.7f;
     
     return tsd_state;
 }
