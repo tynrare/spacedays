@@ -66,11 +66,30 @@ void locomotion_push(float *x, float *y, float *dirx, float *diry, Vector2 goal)
     *diry = newdir.y;
 }
 
+#define PAD_LVBT 16
+
+void loc_viewport_bound_teleport(float *x, float *y) {
+    if (*x < -PAD_LVBT) {
+        *x = viewport_w + PAD_LVBT;
+    } else if (*x > viewport_w + PAD_LVBT) {
+        *x = - PAD_LVBT;
+    }
+    
+    if (*y < -PAD_LVBT) {
+        *y = viewport_h + PAD_LVBT;
+    } else if (*y > viewport_h + PAD_LVBT) {
+        *y = - PAD_LVBT;
+    }
+}
+
 void tsd_state_step(TynspaceDaysState *tsd_state) {
     float watts = WATTS;
     float frec = FREC;
     Vector2 mp = getmp();
-    Vector2 target = Vector2Subtract(mp, tsd_state->camera.offset);
+    Vector2 target = mp;
+    if (tsd_state->tyntbox.camera) {
+        target = Vector2Subtract(mp, tsd_state->camera.offset);
+    }
     
     int st = 0;
     const Color stcolors[] = {RED, WHITE, BLUE};
@@ -92,7 +111,9 @@ void tsd_state_step(TynspaceDaysState *tsd_state) {
     draw_text_ru("- Разные двигатели", 18, 18 + rufont_size * 4, WHITE);
     draw_text_ru("- Коллизии", 18, 18 + rufont_size * 5, WHITE);
     
-    BeginMode2D(tsd_state->camera);
+    if (tsd_state->tyntbox.camera) {
+        BeginMode2D(tsd_state->camera);
+    }
     
     draw_text_ru(RSCANNER, 18, 18 + rufont_size * 0, st == -1 ? BLUE : WHITE);
     draw_text_ru("hold. ", 18, 18 + rufont_size * 1, st ==  0 ? RED  : WHITE);
@@ -113,6 +134,8 @@ void tsd_state_step(TynspaceDaysState *tsd_state) {
         *x += *dx * watts;
         *y += *dy * watts;
         
+        loc_viewport_bound_teleport(x, y);
+        
         float angle = Vector2Angle(vup, (Vector2) { *dx, *dy }) - 0;
         DrawRectangle(*x, *y, 2, 2, RED);
         DrawLine(*x, *y, *x + *dx * 10, *y + *dy * 10, BLUE);
@@ -130,7 +153,9 @@ void tsd_state_step(TynspaceDaysState *tsd_state) {
 
     }
 
-    EndMode2D();
+    if (tsd_state->tyntbox.camera) {
+        EndMode2D();
+    }
 }
 
 void init() {
@@ -166,6 +191,26 @@ void tynspaceship_step() {
     SHADER_UNIFORM_INT);
 }
 
+void draw_lint_x(y) {
+    DrawLine(0, y, viewport_w, y, RED);    
+}
+
+void draw_lint_y(x) {
+    DrawLine(x, 0, x, viewport_h, RED);    
+}
+
+void draw_grid() {
+    draw_lint_x(2);
+    draw_lint_x(viewport_h - 2);
+    draw_lint_y(2);
+    draw_lint_y(viewport_w - 2);
+    
+    //DrawLine(2, 0, 2, viewport_h, RED);
+    //DrawLine(0, 2, viewport_w, 2, RED);
+    //DrawLine(viewport_w - 2, 0, viewport_w - 2, viewport_h, RED);
+    //DrawLine(0, viewport_h - 2, viewport_w, viewport_h - 2, RED);
+}
+
 void tynspaceship_draw() {
       
     BeginTextureMode(tsda->render_tex0);
@@ -199,6 +244,7 @@ void tynspaceship_draw() {
 
 void draw() {
     tynspaceship_draw();
+    draw_grid();
     tsd_state_step(tsda->tsds);
   
     

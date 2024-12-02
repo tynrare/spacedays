@@ -9,6 +9,7 @@ typedef struct TunspaceToolbox {
     bood hold;
     bool compas;
     bool scaner;
+    bool camera;
 } TunspaceToolbox;
 
 typedef struct TynspaceDaysState {
@@ -44,6 +45,8 @@ void tsd_state_run(TynspaceDaysState *tsd_state) {
 TynspaceDaysState *tsd_state_init() {
     TynspaceDaysState *tsd_state = malloc(sizeof(TynspaceDaysState));
     tsd_state->bpool = typool_allocate(1024, sizeof(float) * 4);
+    
+    tsd_state->tyntbox.camera = false;
     
     Camera2D *camera = &tsd_state->camera;
     camera->offset = (Vector2){ viewport_w * 0.5, viewport_h * 0.5 };
