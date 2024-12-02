@@ -13,28 +13,31 @@ uniform sampler2D texture1_gradient;
 
 uniform float time;
 
-float threshold = 0.56;
+float threshold = 0.4;
 
-float edge = 0.1;
-float innerline = 0.02;
+float edge = 0.42;
+float innerline = 0.1;
 
-vec4 colora = vec4(0.01, 0.01, 0.01, 0.01);
-vec4 colorb = vec4(0.01, 0.01, 0.0, 0.01);
-vec4 colorc = vec4(0.01 , 0.0, 0.01, 0.01);
+vec4 colora = vec4(0.2, 0.01, 0.01, 0.4);
+vec4 colorb = vec4(0.1, 0.1, 0.01, 0.4);
+
+vec4 colorc = vec4(0.1, 0.1, 0.1, 0.9);
 
 vec4 sdf0() {
     vec4 texel = texture2D(texture0, fragTexCoord); 
     float r = texel.r;
     
-    float alpha = smoothstep(threshold + edge, threshold + edge, r);
-    float outline = alpha - smoothstep(threshold + innerline + edge, threshold + innerline + edge, r);
+    float alpha = smoothstep(threshold, threshold + edge, r);
     
     vec4 color = colora;
-    color.a = alpha;
-    color.rgb = mix(color.rgb, colorb.rgb, outline);
-    float rr = r + time;
-    float t = (alpha - outline) * sin(rr * 0.01);
-    color.rgb = mix(color.rgb, colorc.rgb, rr);
+    color = mix(color, colorb, alpha);
+    color.a = min(alpha, color.a);
+    
+    //float rr = r + time;
+    //float t = sin(rr * 0.1);
+    
+    //float outline = alpha - smoothstep(threshold - innerline + edge, threshold + innerline + edge, r);
+    //color.rgb = mix(color.rgb, colorc.rgb, rr);
     
     return color;
 }

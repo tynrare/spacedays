@@ -18,8 +18,8 @@
 #include "include/demo_heightmap.h"
 #include "include/assets.h"
 
-#define WATTS 3
-#define FREC 0.1
+#define WATTS 1
+#define FREC 1
 #define WAVE 0.7
 
 #define TITLE "Tynspace days. wit"
@@ -49,7 +49,7 @@ void locomotion_pull(float *x, float *y, float *dirx, float *diry, Vector2 goal)
     Vector2 ngoaldelta = Vector2Normalize(goaldelta);
     Vector2 ndir = Vector2Normalize(dir);
     float angle = Vector2Angle(ndir, ngoaldelta);
-    Vector2 newdir = Vector2Rotate(dir, angle * GetFrameTime());
+    Vector2 newdir = Vector2Rotate(dir, angle * GetFrameTime() * FREC);
     *dirx = newdir.x;
     *diry = newdir.y;
 }
@@ -61,7 +61,7 @@ void locomotion_push(float *x, float *y, float *dirx, float *diry, Vector2 goal)
     Vector2 ngoaldelta = Vector2Negate(Vector2Normalize(goaldelta));
     Vector2 ndir = Vector2Normalize(dir);
     float angle = Vector2Angle(ndir, ngoaldelta);
-    Vector2 newdir = Vector2Rotate(dir, angle * GetFrameTime());
+    Vector2 newdir = Vector2Rotate(dir, angle * GetFrameTime() * FREC);
     *dirx = newdir.x;
     *diry = newdir.y;
 }
@@ -96,11 +96,11 @@ void tsd_state_step(TynspaceDaysState *tsd_state) {
     
     if (IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {
         st = 1;
-        watts *= 6;
+        watts *= 1.2;
     }
      if (IsMouseButtonDown(MOUSE_RIGHT_BUTTON)) {
         st = -1;
-        watts *= 1.2;
+        watts *= 42;
     }
     
         
@@ -145,7 +145,7 @@ void tsd_state_step(TynspaceDaysState *tsd_state) {
 
         const Texture tex = tsda->render_tex1.texture;
 
-        const float scale = 8.0f;
+        const float scale = 4.2f;
         DrawTexturePro(
             tex, 
             (Rectangle){ 0, 0, tex.width, -tex.height }, 
