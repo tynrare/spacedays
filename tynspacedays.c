@@ -271,7 +271,7 @@ void step() {
        
         BeginDrawing();
 
-        ClearBackground(GREEN);
+        ClearBackground(tsda->tsds->tyntbox.greenscreen ? GREEN : WHITE);
         
         draw();
         

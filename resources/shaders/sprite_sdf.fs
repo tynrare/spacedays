@@ -18,9 +18,9 @@ float threshold = 0.49;
 float edge = 0.01;
 float innerline = 0.04;
 
-vec4 colora = vec4(1.0, 1.0, 1.0, 1.0);
-vec4 colorb = vec4(1.0, 0.0, 1.0, 1.0);
-vec4 colorc = vec4(0.7, 0.7, 1.0, 1.0);
+vec4 colora = vec4(0.0, 0.0, 0.0, 0.0);
+vec4 colorb = vec4(1.0, 0.0, 0.0, 1.0);
+vec4 colorc = vec4(1.0 , 1.0, 1.0, 0.0);
 
 vec4 sdf0() {
     vec4 texel = texture2D(texture0, fragTexCoord); 
