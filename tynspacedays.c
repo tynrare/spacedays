@@ -115,7 +115,7 @@ void tsd_state_step(TynspaceDaysState *tsd_state) {
     }
      if (IsMouseButtonDown(MOUSE_RIGHT_BUTTON)) {
         st = -1;
-        watts *= 1.4;
+        watts *= 2.4;
     }
     
         
@@ -160,7 +160,7 @@ void tsd_state_step(TynspaceDaysState *tsd_state) {
 
         const Texture tex = tsda->render_tex1.texture;
 
-        const float scale = 4.2f;
+        const float scale = 0.4f;
         DrawTexturePro(
             tex, 
             (Rectangle){ 0, 0, tex.width, -tex.height }, 
@@ -187,7 +187,7 @@ void init() {
     tsda->r = 0;
 }
 
-int test_ship_parts = 0b1111;
+int test_ship_parts = 0b0001;
 
 void tynspaceship_step() {
    if (IsKeyPressed(KEY_SPACE)) {

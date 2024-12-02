@@ -102,7 +102,7 @@
 			"parameters": {
 				"clamp": false,
 				"fix_ar": true,
-				"image": "C:/Users/Win10_Game_OS/Pictures/ship_b_3_sdf-1b.png"
+				"image": "C:/tynspace-days/resources/textures/ship_b_0.png"
 			},
 			"seed_int": 0,
 			"type": "image"
