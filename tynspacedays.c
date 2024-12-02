@@ -87,6 +87,11 @@ void tsd_state_step(TynspaceDaysState *tsd_state) {
         
     DrawCircle(mp.x, mp.y, 8, stcolors[st + 1]);
     
+    draw_text_ru("Подвязать поведения\n движений к предметам\n инвентаря", 18, 18, WHITE);
+    draw_text_ru("- Телепортатор краев экрана", 18, 18 + rufont_size * 3, WHITE);
+    draw_text_ru("- Разные двигатели", 18, 18 + rufont_size * 4, WHITE);
+    draw_text_ru("- Коллизии", 18, 18 + rufont_size * 5, WHITE);
+    
     BeginMode2D(tsd_state->camera);
     
     draw_text_ru(RSCANNER, 18, 18 + rufont_size * 0, st == -1 ? BLUE : WHITE);
