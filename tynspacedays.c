@@ -19,7 +19,7 @@
 #include "include/assets.h"
 
 #define WATTS 8
-#define FREC 2.2
+#define FREC 4.2
 #define WAVE 1.0
 
 #define TITLE "Tynspace days. wit"
@@ -33,6 +33,7 @@ typedef struct TynsdApp {
     int d;
     int r;
     int c;
+    float decay;
     TynspaceDaysState *tsds;
     TynAssets assets;
     
@@ -134,9 +135,15 @@ void tsd_state_step(TynspaceDaysState *tsd_state) {
     draw_text_ru(RSCANNER, 18, 18 + rufont_size * 0, st == -1 ? BLUE : WHITE);
     draw_text_ru("hold. ", 18, 18 + rufont_size * 1, st ==  0 ? RED  : WHITE);
     draw_text_ru(RCOMPAS , 18, 18 + rufont_size * 2, st ==  1 ? RED  : WHITE);
+   
+    DrawTextRu(
+        TextFormat("decay: %.02f", tsda->decay),
+        0, 0
+    );
     
     BeginTextureMode( tsda->render_tex_f0);
-    ClearBackground(BLACK);
+    //ClearBackground(BLACK);
+    DrawRectangle(2, 2, viewport_w - 4, viewport_h - 4, Fade(BLACK, tsda->decay * GetFrameTime()));
     BeginBlendMode(BLEND_ADD_COLORS);
 
     for (TynPoolCell *p = tsd_state->bpool->active; p; p = p->next) {
@@ -200,6 +207,7 @@ void init() {
     tsda->b = 0;
     tsda->d = 0;
     tsda->r = 0;
+    tsda->decay = 0.24f;
 }
 
 int test_ship_parts = 0b0011;
@@ -209,6 +217,16 @@ void tynspaceship_step() {
         tsda->c = (tsda->c + 1) % TEXTURES_APP_COUNT;
        }
        
+       if (IsKeyDown(KEY_UP)) {
+           tsda->decay += 
+            dlerp(0.0, 1.0, 0.2, GetFrameTime());
+       } else if (IsKeyDown(KEY_DOWN)) {
+            tsda->decay -= 
+            dlerp(0.0, 1.0, 0.2, GetFrameTime());
+            
+       }
+     tsda->decay = Clamp(tsda->decay, 0.0, 1.0);
+        
     if (IsKeyPressed(KEY_ONE)) {
         test_ship_parts ^= 0b0001;
     }
