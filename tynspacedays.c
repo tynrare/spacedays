@@ -18,9 +18,9 @@
 #include "include/demo_heightmap.h"
 #include "include/assets.h"
 
-#define WATTS 2
-#define FREC 2
-#define WAVE 0.7
+#define WATTS 8
+#define FREC 2.2
+#define WAVE 0.3
 
 #define TITLE "Tynspace days. wit"
 
@@ -53,10 +53,10 @@ void locomotion_pull(float *x, float *y, float *dirx, float *diry, Vector2 goal)
     Vector2 nnewdir = Vector2Normalize(newdir);
     Vector2 snewdir = Vector2Scale(
               nnewdir,
-              Vector2DotProduct(ngoaldelta, nnewdir)
+              1 + Vector2DotProduct(ngoaldelta, nnewdir)
              );
-    newdir.x = dlerp(newdir.x, snewdir.x, 0.1, GetFrameTime());
-    newdir.y = dlerp(newdir.y, snewdir.y, 0.1, GetFrameTime());
+    newdir.x = dlerp(newdir.x, snewdir.x, WAVE, GetFrameTime());
+    newdir.y = dlerp(newdir.y, snewdir.y, WAVE, GetFrameTime());
     *dirx = newdir.x;
     *diry = newdir.y;
 }
@@ -72,10 +72,10 @@ void locomotion_push(float *x, float *y, float *dirx, float *diry, Vector2 goal)
     Vector2 nnewdir = Vector2Normalize(newdir);
     Vector2 snewdir = Vector2Scale(
               nnewdir,
-              Vector2DotProduct(ngoaldelta, nnewdir)
+              1 + Vector2DotProduct(ngoaldelta, nnewdir)
              );
-    newdir.x = dlerp(newdir.x, snewdir.x, 0.1, GetFrameTime());
-    newdir.y = dlerp(newdir.y, snewdir.y, 0.1, GetFrameTime());
+    newdir.x = dlerp(newdir.x, snewdir.x, WAVE, GetFrameTime());
+    newdir.y = dlerp(newdir.y, snewdir.y, WAVE, GetFrameTime());
     
     *dirx = newdir.x;
     *diry = newdir.y;
@@ -115,7 +115,7 @@ void tsd_state_step(TynspaceDaysState *tsd_state) {
     }
      if (IsMouseButtonDown(MOUSE_RIGHT_BUTTON)) {
         st = -1;
-        watts *= 2.4;
+        watts *= 0.4;
     }
     
         
@@ -134,7 +134,7 @@ void tsd_state_step(TynspaceDaysState *tsd_state) {
     draw_text_ru("hold. ", 18, 18 + rufont_size * 1, st ==  0 ? RED  : WHITE);
     draw_text_ru(RCOMPAS , 18, 18 + rufont_size * 2, st ==  1 ? RED  : WHITE);
     
-    BeginBlendMode(BLEND_ADD_COLORS);
+    BeginBlendMode(BLEND_ALPHA);
 
     for (TynPoolCell *p = tsd_state->bpool->active; p; p = p->next) {
         float *x = p->point;
@@ -296,7 +296,7 @@ void step() {
        
         BeginDrawing();
 
-        ClearBackground(tsda->tsds->tyntbox.greenscreen ? GREEN : BLACK);
+        ClearBackground(tsda->tsds->tyntbox.greenscreen ? GREEN : WHITE);
         
         draw();
         
