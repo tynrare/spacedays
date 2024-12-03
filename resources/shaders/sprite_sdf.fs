@@ -18,8 +18,8 @@ float threshold = 0.1;
 float edge = 0.2;
 float innerline = 0.1;
 
-vec4 colora = vec4(0.99, 0.99, 0.99, 0.99);
-vec4 colorb = vec4(0.99, 0.66, 0.66, 0.99);
+vec4 colora = vec4(0.29, 0.29, 0.29, 0.99);
+vec4 colorb = vec4(0.29, 0.26, 0.16, 0.99);
 
 vec4 colorc = vec4(0.1, 0.1, 0.1, 0.9);
 

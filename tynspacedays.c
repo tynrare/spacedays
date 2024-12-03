@@ -20,7 +20,7 @@
 
 #define WATTS 8
 #define FREC 2.2
-#define WAVE 0.3
+#define WAVE 1.0
 
 #define TITLE "Tynspace days. wit"
 
@@ -296,7 +296,8 @@ void step() {
        
         BeginDrawing();
 
-        ClearBackground(tsda->tsds->tyntbox.greenscreen ? GREEN : WHITE);
+        const Color b = { 186, 156, 128, 255 };
+        ClearBackground(tsda->tsds->tyntbox.greenscreen ? GREEN  :  b);
         
         draw();
         
