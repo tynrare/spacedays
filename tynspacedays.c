@@ -38,6 +38,7 @@ typedef struct TynsdApp {
     
     RenderTexture2D render_tex0;
     RenderTexture2D render_tex1;
+    RenderTexture2D render_tex_f0;
 } TynsdApp;
 
 TynsdApp *tsda = { 0 };
@@ -134,7 +135,9 @@ void tsd_state_step(TynspaceDaysState *tsd_state) {
     draw_text_ru("hold. ", 18, 18 + rufont_size * 1, st ==  0 ? RED  : WHITE);
     draw_text_ru(RCOMPAS , 18, 18 + rufont_size * 2, st ==  1 ? RED  : WHITE);
     
-    BeginBlendMode(BLEND_ALPHA);
+    BeginTextureMode( tsda->render_tex_f0);
+    ClearBackground(BLACK);
+    BeginBlendMode(BLEND_ADD_COLORS);
 
     for (TynPoolCell *p = tsd_state->bpool->active; p; p = p->next) {
         float *x = p->point;
@@ -154,8 +157,8 @@ void tsd_state_step(TynspaceDaysState *tsd_state) {
         loc_viewport_bound_teleport(x, y);
         
         float angle = Vector2Angle(vup, (Vector2) { *dx, *dy }) - 0;
-        DrawRectangle(*x, *y, 2, 2, RED);
-        DrawLine(*x, *y, *x + *dx * 10, *y + *dy * 10, BLUE);
+        DrawRectangle(*x - 2, *y - 2, 4, 4, WHITE);
+        DrawLine(*x, *y, *x + *dx * 10, *y + *dy * 10, MAGENTA);
         
 
         const Texture tex = tsda->render_tex1.texture;
@@ -172,10 +175,22 @@ void tsd_state_step(TynspaceDaysState *tsd_state) {
     }
     
     EndBlendMode();
-
+    EndTextureMode();
+ 
     if (tsd_state->tyntbox.camera) {
         EndMode2D();
     }
+    
+    BeginShaderMode(*tsda->assets.shaders.sdf.shader);
+            const Texture tex = tsda->render_tex_f0.texture;
+            DrawTexturePro(
+            tex, 
+            (Rectangle){ 0, 0, tex.width, -tex.height }, 
+            (Rectangle){ 0, 0, tex.width, tex.height }, 
+            (Vector2) { 0,0 }, 
+            0 * RAD2DEG, WHITE);
+        
+    EndShaderMode();
 }
 
 void init() {
@@ -187,7 +202,7 @@ void init() {
     tsda->r = 0;
 }
 
-int test_ship_parts = 0b0001;
+int test_ship_parts = 0b0011;
 
 void tynspaceship_step() {
    if (IsKeyPressed(KEY_SPACE)) {
@@ -235,13 +250,12 @@ void tynspaceship_draw() {
       
     BeginTextureMode(tsda->render_tex0);
         ClearBackground(BLANK);
-            
-        BeginShaderMode(*tsda->assets.shaders.sdf.shader);
+            //BeginShaderMode(*tsda->assets.shaders.sdf.shader);
     
             const index = (TEXTURES_INDEX_SHIP + tsda->c) % TEXTURES_APP_COUNT;
-            DrawTexture(tsda->assets.textures[index], 0, 0, WHITE);
+            DrawTexture(tsda->assets.textures[index], 0, 0, MAGENTA);
         
-        EndShaderMode();
+       // EndShaderMode();
     EndTextureMode();
 
     
@@ -281,17 +295,27 @@ void draw() {
     */
 }
 
+void resized(int w, int h) {
+    viewport_w = w;
+    viewport_h = h;
+    UnloadRenderTexture(tsda->render_tex_f0);
+     tsda->render_tex_f0  = LoadRenderTexture(viewport_w, viewport_h);
+}
+
 void step() {
     tsda->b += 1;
     // Update
-
     
         tynspaceship_step();
         
        update_assets(&tsda->assets);
        
-       viewport_w = GetScreenWidth();
-       viewport_h = GetScreenHeight();
+       const w = GetScreenWidth();
+       const h = GetScreenWidth();
+       if (w != viewport_w || h != viewport_h) {
+           resized(w, h);
+       }
+       
         // ч происходит леш хх
        
         BeginDrawing();
@@ -323,6 +347,7 @@ void load() {
     load_assets(&tsda->assets);
     tsda->render_tex0 = LoadRenderTexture(1024, 256);
     tsda->render_tex1 = LoadRenderTexture(256, 256);
+    tsda->render_tex_f0  = LoadRenderTexture(viewport_w, viewport_h);
 }
 
 void run() {

@@ -13,6 +13,7 @@
 
 static const char* const assets_filenames[] = {
     TEXTURES_PATH "gradient.png",
+    TEXTURES_PATH "ship_b_0.png",
     TEXTURES_PATH "ship_b_0_sdf.png",
     TEXTURES_PATH "shipstest0.png",
     TEXTURES_PATH "ship_a_sdf.png",
