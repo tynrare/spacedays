@@ -66,25 +66,25 @@ void tsd_state_run(TynspaceDaysState *tsd_state) {
     
     while (tsd_state->rpool->idle) {
         TynPoolCell *cell = tynpool_cell_alloc(tsd_state->rpool);
-        unsigned short int *r = cell->point;
-        unsigned short int *g = r + 1;
-        unsigned short int *b = r + 2;
-        unsigned short int *a = r + 3;
-        *r = GetRandomValue(0, 255);
-        *g = GetRandomValue(0, 255);
-        *b = GetRandomValue(0, 255);
-        *a = GetRandomValue(0, 255);
+        float *r = cell->point;
+        float *g = r + 1;
+        float *b = r + 2;
+        float *a = r + 3;
+        *r = (float)GetRandomValue(0, 255) / 255.0f;
+        *g = (float)GetRandomValue(0, 255) / 255.0f;
+        *b = (float)GetRandomValue(0, 255) / 255.0f;
+        *a = (float)GetRandomValue(0, 255) / 255.0f;
     }
 }
 
 TynspaceDaysState *tsd_state_init() {
     TynspaceDaysState *tsd_state = malloc(sizeof(TynspaceDaysState));
     tsd_state->bpool = typool_allocate(1024, sizeof(float) * 4);
-    tsd_state->rpool = typool_allocate(1024, sizeof(unsigned short int) * 4);
+    tsd_state->rpool = typool_allocate(1024, sizeof(float) * 4);
     
     tsd_state->tyntbox.camera = false;
     tsd_state->tyntbox.greenscreen = false;
-    tsd_state->tyntbox.texture_preview = true;
+    tsd_state->tyntbox.texture_preview = false;
     
     Camera2D *camera = &tsd_state->camera;
     camera->offset = (Vector2){ viewport_w * 0.5, viewport_h * 0.5 };

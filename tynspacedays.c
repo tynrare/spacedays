@@ -18,9 +18,10 @@
 #include "include/demo_heightmap.h"
 #include "include/assets.h"
 
-#define WATTS 8
-#define FREC 4.2
+#define WATTS 4
+#define FREC 1.2
 #define WAVE 1.0
+#define ACC 2.0
 
 #define TITLE "Tynspace days. wit"
 
@@ -55,7 +56,7 @@ void locomotion_pull(float *x, float *y, float *dirx, float *diry, Vector2 goal)
     Vector2 nnewdir = Vector2Normalize(newdir);
     Vector2 snewdir = Vector2Scale(
               nnewdir,
-              1 + Vector2DotProduct(ngoaldelta, nnewdir)
+              1 + Vector2DotProduct(ngoaldelta, nnewdir) *ACC
              );
     newdir.x = dlerp(newdir.x, snewdir.x, WAVE, GetFrameTime());
     newdir.y = dlerp(newdir.y, snewdir.y, WAVE, GetFrameTime());
@@ -74,7 +75,7 @@ void locomotion_push(float *x, float *y, float *dirx, float *diry, Vector2 goal)
     Vector2 nnewdir = Vector2Normalize(newdir);
     Vector2 snewdir = Vector2Scale(
               nnewdir,
-              1 + Vector2DotProduct(ngoaldelta, nnewdir)
+              1 + Vector2DotProduct(ngoaldelta, nnewdir) *ACC
              );
     newdir.x = dlerp(newdir.x, snewdir.x, WAVE, GetFrameTime());
     newdir.y = dlerp(newdir.y, snewdir.y, WAVE, GetFrameTime());
@@ -146,7 +147,17 @@ void tsd_state_step(TynspaceDaysState *tsd_state) {
     DrawRectangle(2, 2, viewport_w - 4, viewport_h - 4, Fade(BLACK, tsda->decay * GetFrameTime()));
     BeginBlendMode(BLEND_ADD_COLORS);
 
+    TynPoolCell *rand_cp = tsd_state->bpool->active;
+
     for (TynPoolCell *p = tsd_state->bpool->active; p; p = p->next) {
+        float *pr = rand_cp->point;
+         TynPoolCell *rand_cp_next = rand_cp->next;
+         if (rand_cp_next) {
+             rand_cp = rand_cp_next;
+         }
+        float r = *pr;
+        float g = *(pr + 1);
+        float b = *(pr + 2);
         float *x = p->point;
         float *y = x + 1;
         float *dx = x + 2;
@@ -158,13 +169,17 @@ void tsd_state_step(TynspaceDaysState *tsd_state) {
             locomotion_push(x, y, dx, dy, target); // push out
         }
         
-        *x += *dx * watts;
-        *y += *dy * watts;
+        *x += *dx * watts +  *dx * (r * 1e-6);
+        *y += *dy * watts  +*dy * (r * 1e-6);
         
         loc_viewport_bound_teleport(x, y);
-        
+
         float angle = Vector2Angle(vup, (Vector2) { *dx, *dy }) - 0;
-        DrawRectangle(*x - 2, *y - 2, 4, 4, WHITE);
+        
+
+        const Color c = 
+            { r * 255, g * 255, b * 255, 255 };
+        DrawRectangle(*x - 2, *y - 2, 4, 4, c);
         DrawLine(*x, *y, *x + *dx * 10, *y + *dy * 10, MAGENTA);
         
 
@@ -176,7 +191,7 @@ void tsd_state_step(TynspaceDaysState *tsd_state) {
             (Rectangle){ 0, 0, tex.width, -tex.height }, 
             (Rectangle){ *x, *y, tex.width * scale, tex.height * scale }, 
             (Vector2) { 128 * scale, 128 * scale }, 
-            angle * RAD2DEG, WHITE);
+            angle * RAD2DEG, MAGENTA);
 
 
     }
@@ -338,7 +353,8 @@ void step() {
        
         BeginDrawing();
 
-        const Color b = { 186, 156, 128, 255 };
+        //const Color b = { 186, 156, 128, 255 };
+        const Color b = RAYWHITE;
         ClearBackground(tsda->tsds->tyntbox.greenscreen ? GREEN  :  b);
         
         draw();
