@@ -13,9 +13,9 @@ uniform sampler2D texture1_gradient;
 
 uniform float time;
 
-float threshold = 0.54;
+float threshold = 0.74;
 
-float edge = 0.7;
+float edge = 0.01;
 float innerline = 0.1;
 
 vec4 colora = vec4(0.89, 0.1, 0.6, 0.99);
@@ -41,8 +41,23 @@ vec4 sdf0() {
     return color;
 }
 
+vec4 sdf1() {
+    vec2 uv = fragTexCoord;
+    vec4 texel = texture2D(texture0, fragTexCoord); 
+
+    float a = distance(texel.r, 1.0) * 1.0;
+    float alpha = smoothstep(threshold, threshold, a);
+    
+    vec4 colora = vec4(1.0, 1.0, 1.0, 1.0);
+    vec4 colorb = vec4(0.0, 0.0, 0.0, 1.0);
+    vec4 color = mix(colora, colorb, alpha);
+    return color;
+}
+
 void main()
 {
-    gl_FragColor = sdf0();
-    //gl_FragColor = texture2D(texture1_gradient, fragTexCoord);
+    vec4 color = sdf1();
+    gl_FragColor = color;
+
+    //gl_FragColor = texture2D(texture0, fragTexCoord);
 }

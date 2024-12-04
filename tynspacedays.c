@@ -18,10 +18,6 @@
 #include "include/demo_heightmap.h"
 #include "include/assets.h"
 
-#define WATTS 4
-#define FREC 1.2
-#define WAVE 1.0
-#define ACC 2.0
 
 #define TITLE "Tynspace days. wit"
 
@@ -45,59 +41,25 @@ typedef struct TynsdApp {
 
 TynsdApp *tsda = { 0 };
 
-void locomotion_pull(float *x, float *y, float *dirx, float *diry, Vector2 goal) {
-    Vector2 pos = { *x, *y };
-    Vector2 dir = { *dirx, *diry };
-    Vector2 goaldelta = Vector2Subtract(goal, pos);
-    Vector2 ngoaldelta = Vector2Normalize(goaldelta);
-    Vector2 ndir = Vector2Normalize(dir);
-    float angle = Vector2Angle(ndir, ngoaldelta);
-    Vector2 newdir = Vector2Rotate(dir, angle * GetFrameTime() * FREC);
-    Vector2 nnewdir = Vector2Normalize(newdir);
-    Vector2 snewdir = Vector2Scale(
-              nnewdir,
-              1 + Vector2DotProduct(ngoaldelta, nnewdir) *ACC
-             );
-    newdir.x = dlerp(newdir.x, snewdir.x, WAVE, GetFrameTime());
-    newdir.y = dlerp(newdir.y, snewdir.y, WAVE, GetFrameTime());
-    *dirx = newdir.x;
-    *diry = newdir.y;
-}
+void draw_particle(
+    float *x, float*y, 
+    float *dx, float *dy,
+    float *intensity
+    ) {
+        DrawRectangle(*x - 2, *y - 2, 4, 4, MAGENTA);
+        DrawLine(*x, *y, *x + *dx * 10, *y + *dy * 10, MAGENTA);
+        
+        const Texture tex = tsda->render_tex1.texture;
+        float angle = Vector2Angle(vup, (Vector2) { *dx, *dy }) - 0;
+        const float scale = 0.4f;
+        DrawTexturePro(
+            tex, 
+            (Rectangle){ 0, 0, tex.width, -tex.height }, 
+            (Rectangle){ *x, *y, tex.width * scale, tex.height * scale }, 
+            (Vector2) { 128 * scale, 128 * scale }, 
+            angle * RAD2DEG, 
+            Fade(WHITE, *intensity));
 
-void locomotion_push(float *x, float *y, float *dirx, float *diry, Vector2 goal) {
-    Vector2 pos = { *x, *y };
-    Vector2 dir = { *dirx, *diry };
-    Vector2 goaldelta = Vector2Subtract(pos, goal);
-    Vector2 ngoaldelta = Vector2Normalize(goaldelta);
-    Vector2 ndir = Vector2Normalize(dir);
-    float angle = Vector2Angle(ndir, ngoaldelta);
-    Vector2 newdir = Vector2Rotate(dir, angle * GetFrameTime() * FREC);
-    Vector2 nnewdir = Vector2Normalize(newdir);
-    Vector2 snewdir = Vector2Scale(
-              nnewdir,
-              1 + Vector2DotProduct(ngoaldelta, nnewdir) *ACC
-             );
-    newdir.x = dlerp(newdir.x, snewdir.x, WAVE, GetFrameTime());
-    newdir.y = dlerp(newdir.y, snewdir.y, WAVE, GetFrameTime());
-    
-    *dirx = newdir.x;
-    *diry = newdir.y;
-}
-
-#define PAD_LVBT 1024
-
-void loc_viewport_bound_teleport(float *x, float *y) {
-    if (*x < -PAD_LVBT) {
-        *x = viewport_w + PAD_LVBT;
-    } else if (*x > viewport_w + PAD_LVBT) {
-        *x = - PAD_LVBT;
-    }
-    
-    if (*y < -PAD_LVBT) {
-        *y = viewport_h + PAD_LVBT;
-    } else if (*y > viewport_h + PAD_LVBT) {
-        *y = - PAD_LVBT;
-    }
 }
 
 void tsd_state_step(TynspaceDaysState *tsd_state) {
@@ -121,9 +83,6 @@ void tsd_state_step(TynspaceDaysState *tsd_state) {
         watts *= 0.4;
     }
     
-        
-    DrawCircle(mp.x, mp.y, 8, stcolors[st + 1]);
-    
     draw_text_ru("Подвязать поведения\n движений к предметам\n инвентаря", 18, 18, WHITE);
     draw_text_ru("- Телепортатор краев экрана", 18, 18 + rufont_size * 3, WHITE);
     draw_text_ru("- Разные двигатели", 18, 18 + rufont_size * 4, WHITE);
@@ -137,64 +96,28 @@ void tsd_state_step(TynspaceDaysState *tsd_state) {
     draw_text_ru("hold. ", 18, 18 + rufont_size * 1, st ==  0 ? RED  : WHITE);
     draw_text_ru(RCOMPAS , 18, 18 + rufont_size * 2, st ==  1 ? RED  : WHITE);
    
-    DrawTextRu(
+    draw_text_ru(
         TextFormat("decay: %.02f", tsda->decay),
-        0, 0
+        0, 0,
+        RED
     );
     
     BeginTextureMode( tsda->render_tex_f0);
-    //ClearBackground(BLACK);
-    DrawRectangle(2, 2, viewport_w - 4, viewport_h - 4, Fade(BLACK, tsda->decay * GetFrameTime()));
-    BeginBlendMode(BLEND_ADD_COLORS);
+    ClearBackground(BLACK);
+    //DrawRectangle(2, 2, viewport_w - 4, viewport_h - 4, Fade(BLACK, tsda->decay * GetFrameTime()));
+    BeginBlendMode(BLEND_ALPHA);
 
     TynPoolCell *rand_cp = tsd_state->bpool->active;
 
-    for (TynPoolCell *p = tsd_state->bpool->active; p; p = p->next) {
-        float *pr = rand_cp->point;
-         TynPoolCell *rand_cp_next = rand_cp->next;
-         if (rand_cp_next) {
-             rand_cp = rand_cp_next;
-         }
-        float r = *pr;
-        float g = *(pr + 1);
-        float b = *(pr + 2);
-        float *x = p->point;
-        float *y = x + 1;
-        float *dx = x + 2;
-        float *dy = x + 3;
-        
-        if (st == 1) {
-            locomotion_pull(x, y, dx, dy, target); // pull in
-        } else if (st == -1) {
-            locomotion_push(x, y, dx, dy, target); // push out
-        }
-        
-        *x += *dx * watts +  *dx * (r * 1e-6);
-        *y += *dy * watts  +*dy * (r * 1e-6);
-        
-        loc_viewport_bound_teleport(x, y);
+    TynChantDzenSun *tchant_dzen_sun = 
+        &tsd_state->tyntbox.chantbox.dzen_sun;
+     TynPoolCell *aims_p = tchant_dzen_sun->aims->active;
+        float *aims_x = aims_p + 0;
+        float *aims_y = aims_p + 1;
+        *aims_x = mp.x;
+        *aims_y = mp.y;
 
-        float angle = Vector2Angle(vup, (Vector2) { *dx, *dy }) - 0;
-        
-
-        const Color c = 
-            { r * 255, g * 255, b * 255, 255 };
-        DrawRectangle(*x - 2, *y - 2, 4, 4, c);
-        DrawLine(*x, *y, *x + *dx * 10, *y + *dy * 10, MAGENTA);
-        
-
-        const Texture tex = tsda->render_tex1.texture;
-
-        const float scale = 0.4f;
-        DrawTexturePro(
-            tex, 
-            (Rectangle){ 0, 0, tex.width, -tex.height }, 
-            (Rectangle){ *x, *y, tex.width * scale, tex.height * scale }, 
-            (Vector2) { 128 * scale, 128 * scale }, 
-            angle * RAD2DEG, MAGENTA);
-
-
-    }
+    chant_dzensun_step(tchant_dzen_sun , draw_particle);
     
     EndBlendMode();
     EndTextureMode();
@@ -213,6 +136,8 @@ void tsd_state_step(TynspaceDaysState *tsd_state) {
             0 * RAD2DEG, WHITE);
         
     EndShaderMode();
+   
+    DrawCircle(mp.x, mp.y, 8, stcolors[st + 1]);
 }
 
 void init() {
@@ -283,18 +208,18 @@ void tynspaceship_draw() {
       
     BeginTextureMode(tsda->render_tex0);
         ClearBackground(BLANK);
-            //BeginShaderMode(*tsda->assets.shaders.sdf.shader);
+            BeginShaderMode(*tsda->assets.shaders.spritegeneric.shader);
     
             const index = (TEXTURES_INDEX_SHIP + tsda->c) % TEXTURES_APP_COUNT;
-            DrawTexture(tsda->assets.textures[index], 0, 0, MAGENTA);
+            DrawTexture(tsda->assets.textures[index], 0, 0, WHITE);
         
-       // EndShaderMode();
+        EndShaderMode();
     EndTextureMode();
 
     
    BeginTextureMode(tsda->render_tex1);
         ClearBackground(BLANK);
-        BeginShaderMode(*tsda->assets.shaders.ship.shader);
+        //BeginShaderMode(*tsda->assets.shaders.ship.shader);
 
         const Texture tex = tsda->render_tex0.texture;
         //const angle = GetTime() * 16;
@@ -305,7 +230,7 @@ void tynspaceship_draw() {
             (Rectangle){ 128, 128, tex.width * 0.25, tex.height }, 
             (Vector2) { 128, 128 }, 
             angle, WHITE);
-        EndShaderMode();
+        //EndShaderMode();
     EndTextureMode();
     
     if (tsda->tsds->tyntbox.texture_preview) {

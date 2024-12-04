@@ -1,5 +1,6 @@
 #include "index.h"
 #include "resources.h"
+#include "tyntbox.h"
 
 #ifndef TYNSPACEDAYS_H
 #define TYNSPACEDAYS_H
@@ -7,20 +8,12 @@
 
 #define SPACE_IBOUNDS 2048
 
-typedef struct TunspaceToolbox {
-    bood hold;
-    bool compas;
-    bool scaner;
-    bool camera;
-    bool greenscreen;
-    bool texture_preview;
-} TunspaceToolbox;
 
 typedef struct TynspaceDaysState {
     struct TynPool *bpool;
     struct TynPool *rpool;
     Camera2D camera;
-    TunspaceToolbox tyntbox;
+    TynspaceToolbox tyntbox;
 } TynspaceDaysState;
 
 void tsd_state_stop(TynspaceDaysState *tsd_state) {
@@ -82,9 +75,7 @@ TynspaceDaysState *tsd_state_init() {
     tsd_state->bpool = typool_allocate(1024, sizeof(float) * 4);
     tsd_state->rpool = typool_allocate(1024, sizeof(float) * 4);
     
-    tsd_state->tyntbox.camera = false;
-    tsd_state->tyntbox.greenscreen = false;
-    tsd_state->tyntbox.texture_preview = false;
+    tyntbox_init_default(&tsd_state->tyntbox);
     
     Camera2D *camera = &tsd_state->camera;
     camera->offset = (Vector2){ viewport_w * 0.5, viewport_h * 0.5 };
