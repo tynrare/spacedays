@@ -1,0 +1,1 @@
+/usr/bin/cc  -Wno-error=incompatible-pointer-types -Wl,--dependency-file,CMakeFiles/tynspacedays.dir/link.d CMakeFiles/tynspacedays.dir/tynspacedays.c.o -o tynspacedays  -Wl,-rpath,/usr/local/lib /usr/local/lib/libraylib.so -lm

@@ -1,5 +1,6 @@
 #include "raylib.h"
 #include "resources.h"
+#include "rlgl.h"
 
 #define SHADERS_AUTO_RELOAD
 #define SHADERS_APP_COUNT 16
@@ -67,7 +68,7 @@ static Shader load_shader(TynShaders *tynshaders, int index) {
     const char *filename = shaders_filenames[index];
     Shader shader = LoadShader(0,  filename);
      if (shader.id == rlGetShaderIdDefault()) { 
-            return;
+            return shader;
      }
      if (tynshaders->file_mod_times[index] != 0) {
         UnloadShader(tynshaders->shaders[index]);

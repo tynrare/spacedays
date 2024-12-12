@@ -1,0 +1,8 @@
+[
+{
+  "directory": "/home/x/b/spacedays/build",
+  "command": "/usr/bin/cc    -Wno-error=incompatible-pointer-types -o CMakeFiles/tynspacedays.dir/tynspacedays.c.o -c /home/x/b/spacedays/tynspacedays.c",
+  "file": "/home/x/b/spacedays/tynspacedays.c",
+  "output": "CMakeFiles/tynspacedays.dir/tynspacedays.c.o"
+}
+]

@@ -1,0 +1,3 @@
+/home/x/b/spacedays/build/CMakeFiles/tynspacedays.dir
+/home/x/b/spacedays/build/CMakeFiles/edit_cache.dir
+/home/x/b/spacedays/build/CMakeFiles/rebuild_cache.dir

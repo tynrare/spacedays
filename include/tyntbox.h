@@ -51,8 +51,8 @@ void chant_dzensun_step(
         
         
         TynPoolCell *aims_p = tchant_dzen_sun->aims->active;
-        float *aims_x = aims_p + 0;
-        float *aims_y = aims_p + 1;
+        float *aims_x = aims_p->point + 0;
+        float *aims_y = aims_p->point + 1;
         Vector2 vaims = { *aims_x, *aims_y };
         
         float watts = 1.0;

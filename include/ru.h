@@ -1,4 +1,6 @@
 #include "raylib.h"
+#include <stdlib.h>
+#include <string.h>
 
 #ifndef RULANG_H
 #define RULANG_H

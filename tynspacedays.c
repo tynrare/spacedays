@@ -111,9 +111,9 @@ void tsd_state_step(TynspaceDaysState *tsd_state) {
 
     TynChantDzenSun *tchant_dzen_sun = 
         &tsd_state->tyntbox.chantbox.dzen_sun;
-     TynPoolCell *aims_p = tchant_dzen_sun->aims->active;
-        float *aims_x = aims_p + 0;
-        float *aims_y = aims_p + 1;
+				 TynPoolCell *aims_p = tchant_dzen_sun->aims->active;
+        float *aims_x = aims_p->point + 0;
+        float *aims_y = aims_p->point + 1;
         *aims_x = mp.x;
         *aims_y = mp.y;
 
@@ -184,11 +184,11 @@ void tynspaceship_step() {
     SHADER_UNIFORM_INT);
 }
 
-void draw_lint_x(y) {
+void draw_lint_x(int y) {
     DrawLine(0, y, viewport_w, y, RED);    
 }
 
-void draw_lint_y(x) {
+void draw_lint_y(int x) {
     DrawLine(x, 0, x, viewport_h, RED);    
 }
 
@@ -210,7 +210,7 @@ void tynspaceship_draw() {
         ClearBackground(BLANK);
             BeginShaderMode(*tsda->assets.shaders.spritegeneric.shader);
     
-            const index = (TEXTURES_INDEX_SHIP + tsda->c) % TEXTURES_APP_COUNT;
+            const int index = (TEXTURES_INDEX_SHIP + tsda->c) % TEXTURES_APP_COUNT;
             DrawTexture(tsda->assets.textures[index], 0, 0, WHITE);
         
         EndShaderMode();
@@ -223,7 +223,7 @@ void tynspaceship_draw() {
 
         const Texture tex = tsda->render_tex0.texture;
         //const angle = GetTime() * 16;
-        const angle = 0.0f;
+        const float angle = 0.0f;
         DrawTexturePro(
             tex, 
             (Rectangle){ 0, 0, tex.width, -tex.height }, 
@@ -268,8 +268,8 @@ void step() {
         
        update_assets(&tsda->assets);
        
-       const w = GetScreenWidth();
-       const h = GetScreenWidth();
+       const int w = GetScreenWidth();
+       const int h = GetScreenWidth();
        if (w != viewport_w || h != viewport_h) {
            resized(w, h);
        }
